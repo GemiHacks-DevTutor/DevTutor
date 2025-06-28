@@ -9,11 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-<<<<<<< HEAD
     "@google/genai": "^1.7.0",
-=======
-    "@google/generative-ai": "^0.24.1",
->>>>>>> 065fb5bc206524d9e28d0c20da76ce528fa452f2
     "@hookform/resolvers": "^5.1.1",
     "@keyv/mongo": "^3.0.3",
     "@radix-ui/react-avatar": "^1.1.10",
