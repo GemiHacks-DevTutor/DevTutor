@@ -1,0 +1,92 @@
+import { MongoClient, ObjectId } from 'mongodb';
+import { NextRequest, NextResponse } from 'next/server';
+import { generateTool } from '@/lib/gemini';
+
+const MONGODB_URI = process.env.MONGODB_URI || '';
+
+export async function GET(req: NextRequest)
+{
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    if (!id)
+        return NextResponse.json(
+            { error: 'Missing id parameter' },
+            { status: 400 }
+        );
+
+    const client = new MongoClient(MONGODB_URI);
+    await client.connect();
+
+    const db = client.db('devtutor');
+    const usersCollection = db.collection('users');
+
+    const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+    if (!user)
+        return NextResponse.json(
+            { error: 'Must be a user.' },
+            { status: 404 }
+        );
+
+    const toolsCollection = db.collection('tools');
+
+    const tools = await toolsCollection.find({}).toArray();
+    await client.close();
+
+    return NextResponse.json({
+        success: true,
+        tools
+    });
+}
+
+export async function POST(request: NextRequest)
+{
+    const body = await request.json();
+    const { toolName, id } = body;
+
+    if (!toolName || !id) {
+        return NextResponse.json(
+            { error: 'toolName and id are required' },
+            { status: 400 }
+        );
+    }
+
+    const client = new MongoClient(MONGODB_URI);
+    await client.connect();
+
+    const db = client.db('devtutor');
+    const usersCollection = db.collection('users');
+
+    const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+    if (!user)
+        return NextResponse.json(
+            { error: 'Must be a user.' },
+            { status: 404 }
+        );
+
+    const toolsCollection = db.collection('tools');
+
+    const toolExists = await toolsCollection.findOne({ name: toolName});
+    if(toolExists)
+    {
+        await client.close();
+        return NextResponse.json({
+            success: true,
+            tool: toolExists
+        });
+    }
+
+    const generatedTool = await generateTool(toolName);
+    const result = await toolsCollection.insertOne(generatedTool);
+    
+    const savedTool = {
+        ...generatedTool,
+        id: result.insertedId.toString()
+    };
+
+    await client.close();
+
+    return NextResponse.json({
+        success: true,
+        tool: savedTool,
+    });
+}
