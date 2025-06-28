@@ -121,7 +121,7 @@ export default function QuestionnairePage() {
   }
 
   return (
-    <div className="dark bg-background text-foreground flex min-h-screen flex-col items-center justify-center p-4 sm:p-6">
+    <div className="bg-background text-foreground flex min-h-screen flex-col items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-2xl space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight">
