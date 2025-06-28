@@ -45,7 +45,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
             if(response.ok)
             {
-                const data = response.json();
+                const data = await response.json();
                 setUser(data as User);
 
                 localStorage.setItem('user', JSON.stringify(data));
