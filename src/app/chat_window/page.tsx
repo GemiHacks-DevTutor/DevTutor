@@ -15,51 +15,111 @@ interface Message {
 
 export default function ChatWindow() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSendMessage = async () => {
     if (input.trim() === "") return;
 
-    const newUserMessage: Message = {
-      id: messages.length + 1,
-      text: input,
-      sender: "user",
-    };
-    setMessages((prevMessages) => [...prevMessages, newUserMessage]);
+    const userMessageText = input;
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: prev.length + 1,
+        text: userMessageText,
+        sender: "user",
+      },
+    ]);
     setInput("");
     setLoading(true);
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch("/api/chat_window", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: userMessageText }),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
       const data = await response.json();
-      const aiResponse: Message = {
-        id: messages.length + 2,
-        text: data.response,
-        sender: "ai",
-      };
-      setMessages((prevMessages) => [...prevMessages, aiResponse]);
+
+      setMessages((prev) => [
+        ...prev,
+        { id: prev.length + 1, text: data.response, sender: "ai" },
+      ]);
     } catch (error) {
       console.error("Error sending message:", error);
-      const errorMessage: Message = {
-        id: messages.length + 2,
-        text: "Sorry, something went wrong. Please try again.",
-        sender: "ai",
-      };
-      setMessages((prevMessages) => [...prevMessages, errorMessage]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: prev.length + 1,
+          text: "Sorry, something went wrong. Please try again.",
+          sender: "ai",
+        },
+      ]);
     } finally {
       setLoading(false);
-    }  
     }
+  };
+
+  return (
+    <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
+      <Card className="flex flex-col flex-grow m-4">
+        <CardHeader>
+          <CardTitle className="text-center">DevTutor</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col flex-grow p-4">
+          <ScrollArea className="flex-grow h-[calc(100vh-200px)] p-4 border rounded-md bg-white dark:bg-gray-800">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex items-start mb-4 ${
+                  message.sender === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                {message.sender === "ai" && (
+                  <Avatar className="mr-3">
+                    <AvatarImage src="/ai-avatar.png" />
+                    <AvatarFallback>DT</AvatarFallback>
+                  </Avatar>
+                )}
+                <div
+                  className={`max-w-[70%] p-3 rounded-lg ${
+                    message.sender === "user"
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                  }`}
+                >
+                  {message.text}
+                </div>
+                {message.sender === "user" && (
+                  <Avatar className="ml-3">
+                    <AvatarImage src="/user-avatar.png" />
+                    <AvatarFallback>You</AvatarFallback>
+                  </Avatar>
+                )}
+              </div>
+            ))}
+          </ScrollArea>
+          <div className="flex mt-4">
+            <Input
+              type="text"
+              placeholder="Type your message..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+              className="flex-grow mr-2"
+              disabled={loading}
+            />
+            <Button onClick={handleSendMessage} disabled={loading}>
+              {loading ? "Sending..." : "Send"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
