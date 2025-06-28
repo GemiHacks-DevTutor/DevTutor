@@ -4,9 +4,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/contexts/UserContext";
 import Link from "next/link";
 
 const Signup = () => {
+
+    const { user, signup } = useUser();
+    const router = useRouter();
+
+    useEffect(() => {
+
+        if(user)
+            router.replace("/");
+
+    }, [user, router]);
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -15,10 +28,8 @@ const Signup = () => {
         const lastName = (event.target as HTMLFormElement).lastName.value;
         const username = (event.target as HTMLFormElement).username.value;
         const password = (event.target as HTMLFormElement).password.value;
-        console.log("First Name:", firstName);
-        console.log("Last Name:", lastName);
-        console.log("Username:", username);
-        console.log("Password:", password);
+        
+        signup(username, password, firstName, lastName)
     };
 
     return (

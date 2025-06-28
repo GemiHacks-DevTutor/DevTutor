@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { MongoClient } from 'mongodb';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/devtutor';
+const MONGODB_URI = process.env.MONGODB_URI || '';
 
 export async function POST(request: NextRequest) 
 {

@@ -4,17 +4,32 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { useUser } from "@/contexts/UserContext";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useEffect } from "react";
+
 
 const Login = () => {
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const { user, login } = useUser();
+    const router = useRouter();
+
+    useEffect(() => {
+
+        if(user)
+            router.replace("/");
+
+    }, [user, router]);
+
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+
         event.preventDefault();
 
         const username = (event.target as HTMLFormElement).username.value;
         const password = (event.target as HTMLFormElement).password.value;
-        console.log("Username:", username);
-        console.log("Password:", password);
+        
+        login(username, password);
     };
 
     return (
