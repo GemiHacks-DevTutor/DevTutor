@@ -12,7 +12,7 @@ interface UserContextType {
   setUser: (user: User | null) => void;
   addUserTool: (tool: Tool) => void;
   removeUserTool: (toolId: string) => void;
-  createTool: (toolName: string) => Promise<boolean>;
+  createTool: (toolName: string) => Promise<{ success: boolean; error?: string }>;
   login: (username: string, password: string) => Promise<boolean>;
   signup: (username: string, password: string, firstName?: string, lastName?: string) => Promise<boolean>;
   logout: () => void;
@@ -72,10 +72,10 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     setUserTools(prev => prev.filter(tool => tool.id !== toolId));
   };
 
-  const createTool = async (toolName: string): Promise<boolean> => {
+  const createTool = async (toolName: string): Promise<{ success: boolean; error?: string }> => {
     if (!user || !user.id) {
       console.error('User not logged in');
-      return false;
+      return { success: false, error: 'User not logged in' };
     }
 
     try {
@@ -94,18 +94,19 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         
         if (newTool) {
           addUserTool(newTool);
-          return true;
+          return { success: true };
         } else {
           console.error('No tool data received from API');
-          return false;
+          return { success: false, error: 'No tool data received from API' };
         }
       } else {
-        console.error('Failed to create tool');
-        return false;
+        const errorData = await response.json();
+        console.error('Failed to create tool:', errorData.error);
+        return { success: false, error: errorData.error || 'Failed to create tool' };
       }
     } catch (error) {
       console.error('Error creating tool:', error);
-      return false;
+      return { success: false, error: 'Network error occurred' };
     }
   };
 

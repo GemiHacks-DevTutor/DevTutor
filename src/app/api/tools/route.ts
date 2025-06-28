@@ -1,6 +1,7 @@
 import { MongoClient, ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 import { generateTool } from '@/lib/gemini';
+import { validateDevTool } from '@/lib/validation/devToolValidator';
 
 const MONGODB_URI = process.env.MONGODB_URI || '';
 
@@ -46,6 +47,15 @@ export async function POST(request: NextRequest)
     if (!toolName || !id) {
         return NextResponse.json(
             { error: 'toolName and id are required' },
+            { status: 400 }
+        );
+    }
+
+    // Validate that the tool name is development-related
+    const isValidDevTool = await validateDevTool(toolName);
+    if (!isValidDevTool) {
+        return NextResponse.json(
+            { error: 'Invalid tool. Please enter a programming language, framework, or development tool.' },
             { status: 400 }
         );
     }

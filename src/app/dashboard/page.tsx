@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AlertCircle } from "lucide-react";
 
 const Dashboard = () => {
     const { user, userTools, isLoadingTools, createTool } = useUser();
@@ -19,6 +20,7 @@ const Dashboard = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [toolName, setToolName] = useState("");
     const [isCreatingTool, setIsCreatingTool] = useState(false);
+    const [toolError, setToolError] = useState<string | null>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -53,6 +55,7 @@ const Dashboard = () => {
     });
 
     const handleCreateTool = () => {
+        setToolError(null);
         setIsDialogOpen(true);
     };
 
@@ -60,17 +63,19 @@ const Dashboard = () => {
         if (!toolName.trim()) return;
         
         setIsCreatingTool(true);
+        setToolError(null);
+        
         try {
-            const success = await createTool(toolName.trim());
-            if (success) {
+            const result = await createTool(toolName.trim());
+            if (result.success) {
                 setToolName("");
                 setIsDialogOpen(false);
             } else {
-                // TODO: Show error message to user
-                console.error('Failed to create tool');
+                setToolError(result.error || 'Failed to create tool');
             }
         } catch (error) {
             console.error('Error creating tool:', error);
+            setToolError('An unexpected error occurred');
         } finally {
             setIsCreatingTool(false);
         }
@@ -78,6 +83,7 @@ const Dashboard = () => {
 
     const handleCancelTool = () => {
         setToolName("");
+        setToolError(null);
         setIsDialogOpen(false);
     };
 
@@ -128,9 +134,12 @@ const Dashboard = () => {
                             <Input
                                 id="toolName"
                                 value={toolName}
-                                onChange={(e) => setToolName(e.target.value)}
+                                onChange={(e) => {
+                                    setToolName(e.target.value);
+                                    if (toolError) setToolError(null);
+                                }}
                                 placeholder="Enter tool name (e.g., React, Angular)"
-                                className="col-span-3"
+                                className={`col-span-3 ${toolError ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && !isCreatingTool) {
                                         handleSubmitTool();
@@ -139,6 +148,15 @@ const Dashboard = () => {
                                 disabled={isCreatingTool}
                             />
                         </div>
+                        {toolError && (
+                            <div className="flex items-start gap-3 p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg shadow-sm">
+                                <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                                <div className="flex-1">
+                                    <p className="font-medium">Invalid Tool</p>
+                                    <p className="mt-1 text-red-600">{toolError}</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                     <div className="flex justify-end gap-2">
                         <Button variant="outline" onClick={handleCancelTool} disabled={isCreatingTool}>
