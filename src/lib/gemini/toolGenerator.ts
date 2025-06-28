@@ -1,5 +1,5 @@
 import { model } from './client';
-import { Tool, ToolModule } from '../../models/course';
+import { Tool, ToolModule } from '../../models/tool';
 
 export const generateTool = async (toolName: string): Promise<Tool> => {
   if (!toolName)

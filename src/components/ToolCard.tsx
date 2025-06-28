@@ -4,7 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Star, Users } from "lucide-react";
 import Image from "next/image";
-import { Tool } from "@/models/course";
+import { useRouter } from "next/navigation";
+import { Tool } from "@/models/tool";
 
 interface ToolCardProps {
     tool: Tool;
@@ -37,9 +38,10 @@ const getDifficultyIcon = (difficulty: string) => {
 };
 
 const ToolCard = ({ tool }: ToolCardProps) => {
+    const router = useRouter();
+    
     const handleStartLearning = () => {
-        console.log('Starting learning for tool:', tool.name);
-        // TODO: Navigate to tool learning page or enroll user
+        router.push(`/${tool.id}`);
     };
 
     return (

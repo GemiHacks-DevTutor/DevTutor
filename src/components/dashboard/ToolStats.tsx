@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Wrench, Settings } from "lucide-react";
-import { Tool } from "@/models/course";
+import { Tool } from "@/models/tool";
 
 interface ToolStatsProps {
   tools: Tool[];

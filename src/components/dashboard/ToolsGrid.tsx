@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Search, Settings, Plus, Wrench } from "lucide-react";
 import ToolCard from "@/components/ToolCard";
-import { Tool } from "@/models/course";
+import { Tool } from "@/models/tool";
 
 interface ToolsGridProps {
   filteredTools: Tool[];
@@ -106,7 +106,7 @@ export const ToolsGrid = ({
                 onClick={onCreateTool}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Create Tool
+                Add Tool
               </Button>
             </div>
           </div>
