@@ -1,52 +1,72 @@
 'use client';
 
-import { useCourse } from '@/contexts/CourseContext';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useCourse } from '@/contexts/CourseContext';
+import UserAvatar from '@/components/UserAvatar';
+import { abort } from 'node:process';
 
 export default function ToolPage() {
-  const { user } = useUser();
-  const { currentCourse, isLoadingCourse, isCreatingCourse, createCourse } = useCourse();
+  const { user, userTools } = useUser();
+  const { userCourses, createCourse } = useCourse();
   const params = useParams();
   const router = useRouter();
   const toolId = params?.toolId as string;
+  
+  const currentTool = userTools.find(tool => tool.id === toolId);
+  const currentCourse = userCourses.find(course => course.toolId === toolId);
+  const [isCreatingCourse, setIsCreatingCourse] = useState(false);
 
   useEffect(() => {
-    if (!user) {
+
+    if(!user)
       router.push('/login');
-    }
+
   }, [user, router]);
 
   const handleStartCourse = async () => {
-    if (toolId) {
-      const success = await createCourse(toolId);
-      if (!success) {
-        console.error('Failed to create course');
-      }
+
+    if(toolId)
+    {
+      setIsCreatingCourse(true);
+      await createCourse(toolId);
+      setIsCreatingCourse(false);
     }
   };
 
-  if (!user) {
-    return <div>Redirecting to login...</div>;
-  }
+  const handleBackToDashboard = () => {
+    router.push('/dashboard');
+  };
 
-  if (isLoadingCourse) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
-        <div>Loading course...</div>
-      </div>
-    );
-  }
+  if (!user)
+    return <div>Redirecting to login...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
+        {/* Page Header with UserAvatar */}
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex flex-col gap-6">
+            <Button 
+              variant="outline" 
+              onClick={handleBackToDashboard}
+              className="self-start"
+            >
+              ← Back to Dashboard
+            </Button>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Course: {currentTool?.name || toolId}
+            </h1>
+          </div>
+          <UserAvatar />
+        </div>
+        
         <Card>
           <CardHeader>
-            <CardTitle>Tool: {toolId}</CardTitle>
+            <CardTitle>Course Overview</CardTitle>
           </CardHeader>
           <CardContent>
             {currentCourse ? (
