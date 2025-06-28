@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCourse } from '@/contexts/CourseContext';
 import UserAvatar from '@/components/UserAvatar';
-import { abort } from 'node:process';
 
 export default function ToolPage() {
   const { user, userTools } = useUser();
@@ -24,6 +23,9 @@ export default function ToolPage() {
 
     if(!user)
       router.push('/login');
+
+    if(user && !user.hasCompletedSurvey)
+      router.push('/questionnaire');
 
   }, [user, router]);
 
@@ -43,6 +45,9 @@ export default function ToolPage() {
 
   if (!user)
     return <div>Redirecting to login...</div>;
+
+  if (user && !user.hasCompletedSurvey)
+    return <div>Redirecting to questionnaire...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

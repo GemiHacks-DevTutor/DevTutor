@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
+import { useEffect } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -37,58 +38,33 @@ const FormSchema = z.object({
 })
 
 export default function QuestionnairePage() {
-  const { user } = useUser()
+  const { user, submitQuestionnaire } = useUser()
   const router = useRouter()
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   })
 
-  async function submitPreferences(data: {
-    answers: {
-      style: number
-      tone: number
-      pace: number
-      experience: number
-    },
-    userId: string | undefined
-  }) {
-    if (!data.userId) {
-      toast.error("You must be logged in to submit the questionnaire.")
-      return
+  // Redirect logic
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+      return;
     }
 
-    try {
-      const response = await fetch("/api/questionnaire", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      })
-
-      const result = await response.json()
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || "Failed to submit preferences.")
-      }
-
-      toast.success("Preferences saved successfully!")
-      router.push("/dashboard") // Or wherever the user should go next
-    } catch (error) {
-      console.error("Submission error:", error, "Data:", data)
-      toast.error(
-        "Submission failed.",
-        {
-          description:
-            error instanceof Error
-              ? error.message
-              : `An unknown error occurred. Data: ${JSON.stringify(
-                  data,
-                )}`,
-        },
-        
-      )
+    // If user has already completed questionnaire, redirect to dashboard
+    if (user && user.hasCompletedSurvey) {
+      router.push('/dashboard');
+      return;
     }
+  }, [user, router]);
+
+  // Early returns for redirects
+  if (!user) {
+    return <div>Redirecting to login...</div>;
+  }
+
+  if (user && user.hasCompletedSurvey) {
+    return <div>Redirecting to dashboard...</div>;
   }
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -105,19 +81,24 @@ export default function QuestionnairePage() {
     }
 
     // Convert all values
-    const transformed = {
-      answers: {
-        style: choiceToNumber("style", data.style),
-        tone: choiceToNumber("tone", data.tone),
-        pace: choiceToNumber("pace", data.pace),
-        experience: choiceToNumber("experience", data.experience),
-      },
-    userId: user?.id, // Include the user's ID
+    const answers = {
+      style: choiceToNumber("style", data.style),
+      tone: choiceToNumber("tone", data.tone),
+      pace: choiceToNumber("pace", data.pace),
+      experience: choiceToNumber("experience", data.experience),
     }
 
-    // Send to API
-    await submitPreferences(transformed)
-
+    // Submit using UserContext
+    const result = await submitQuestionnaire(answers);
+    
+    if (result.success) {
+      toast.success("Preferences saved successfully!");
+      router.push("/dashboard");
+    } else {
+      toast.error("Submission failed.", {
+        description: result.error || "An unknown error occurred."
+      });
+    }
   }
 
   return (

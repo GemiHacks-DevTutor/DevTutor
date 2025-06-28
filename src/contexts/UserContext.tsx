@@ -13,6 +13,7 @@ interface UserContextType {
   addUserTool: (tool: Tool) => void;
   removeUserTool: (toolId: string) => void;
   createTool: (toolName: string) => Promise<{ success: boolean; error?: string }>;
+  submitQuestionnaire: (answers: { style: number; tone: number; pace: number; experience: number }) => Promise<{ success: boolean; error?: string }>;
   login: (username: string, password: string) => Promise<boolean>;
   signup: (username: string, password: string, firstName?: string, lastName?: string) => Promise<boolean>;
   logout: () => void;
@@ -107,6 +108,46 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   };
 
+  const submitQuestionnaire = async (answers: { style: number; tone: number; pace: number; experience: number }): Promise<{ success: boolean; error?: string }> => {
+    if (!user || !user.id) {
+      console.error('User not logged in');
+      return { success: false, error: 'User not logged in' };
+    }
+
+    try {
+      const response = await fetch('/api/questionnaire', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          answers,
+          userId: user.id 
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.success) {
+          // Update user to mark questionnaire as completed
+          setUser({
+            ...user,
+            hasCompletedSurvey: true
+          });
+          return { success: true };
+        } else {
+          return { success: false, error: data.error || 'Failed to submit questionnaire' };
+        }
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to submit questionnaire:', errorData.error);
+        return { success: false, error: errorData.error || 'Failed to submit questionnaire' };
+      }
+    } catch (error) {
+      console.error('Error submitting questionnaire:', error);
+      return { success: false, error: 'Network error occurred' };
+    }
+  };
+
   const login = async (username: string, password: string): Promise<boolean> => {
     setIsLoggingIn(true);
     try {
@@ -143,8 +184,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const signup = async (username: string, password: string, firstName?: string, lastName?: string): Promise<boolean> => {
     setIsLoggingIn(true);
-    try {
-      // TODO: Replace with actual signup API call
+    try
+    {
       const response = await fetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -220,6 +261,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     addUserTool,
     removeUserTool,
     createTool,
+    submitQuestionnaire,
     login,
     signup,
     logout

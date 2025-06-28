@@ -28,16 +28,45 @@ const Dashboard = () => {
     const router = useRouter();
 
     useEffect(() => {
-        if (!user) router.push('/login');
+        if (!user)
+            router.push('/login');
+
+        if (user && !user.hasCompletedSurvey)
+            router.push('/questionnaire');
+
     }, [user, router]);
 
     const filteredTools = userTools.filter((tool: Tool) => {
+        // Filter out tools that already have courses
+        const hasExistingCourse = userCourses.some(course => course.toolId === tool.id);
+        if (hasExistingCourse) return false;
+        
+        // Apply search filter
         if (!searchQuery.trim()) return true;
         const query = searchQuery.toLowerCase();
         return (
             tool.name.toLowerCase().includes(query) ||
             tool.description.toLowerCase().includes(query) ||
             tool.difficulty.toLowerCase().includes(query)
+        );
+    });
+
+    const filteredCourses = userCourses.filter((course) => {
+        // Find the corresponding tool for this course
+        const correspondingTool = userTools.find(tool => tool.id === course.toolId);
+        
+        // If no search query, show all courses
+        if (!searchQuery.trim()) return true;
+        
+        // If we can't find the tool, hide the course from search results
+        if (!correspondingTool) return false;
+        
+        // Apply search filter using the tool's properties
+        const query = searchQuery.toLowerCase();
+        return (
+            correspondingTool.name.toLowerCase().includes(query) ||
+            correspondingTool.description.toLowerCase().includes(query) ||
+            correspondingTool.difficulty.toLowerCase().includes(query)
         );
     });
 
@@ -81,6 +110,18 @@ const Dashboard = () => {
         );
     }
 
+    if (user && !user.hasCompletedSurvey) {
+        return (
+            <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p>Redirecting to questionnaire...</p>
+                    <p className="text-sm text-gray-500 mt-2">Please complete the questionnaire to access the dashboard</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-7xl mx-auto">
@@ -92,9 +133,9 @@ const Dashboard = () => {
                 
                 {/* Courses Section */}
                 <div className="mb-8">
-                    <CoursesSectionHeader courses={userCourses} />
+                    <CoursesSectionHeader courses={filteredCourses} />
                     <CoursesGrid 
-                        courses={userCourses}
+                        courses={filteredCourses}
                         tools={userTools}
                         isLoading={isLoadingCourses}
                     />
