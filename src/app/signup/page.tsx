@@ -17,7 +17,7 @@ const Signup = () => {
     useEffect(() => {
 
         if(user)
-            router.replace("/");
+            router.replace("/dashboard");
 
     }, [user, router]);
 
@@ -28,7 +28,7 @@ const Signup = () => {
         const lastName = (event.target as HTMLFormElement).lastName.value;
         const username = (event.target as HTMLFormElement).username.value;
         const password = (event.target as HTMLFormElement).password.value;
-        
+
         signup(username, password, firstName, lastName)
     };
 

@@ -14,15 +14,4 @@ interface ToolModule {
     description: string;
 }
 
-
-// TODO: REMOVE THIS
-interface UserCourse {
-    id: string;
-    userId: string;
-    toolId: string; // Reference to the Tool
-    status: 'Not Started' | 'In Progress' | 'Completed';
-    currentModuleId?: string; // Current module the user is on
-    completedModules: string[]; // Array of completed module IDs
-}
-
-export type { Tool, ToolModule, UserCourse };
+export type { Tool, ToolModule };

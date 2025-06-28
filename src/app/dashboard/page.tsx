@@ -1,7 +1,8 @@
 'use client';
 
 import { useUser } from "@/contexts/UserContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { ToolsSectionHeader } from "@/components/dashboard/ToolsSectionHeader";
 import { ToolsGrid } from "@/components/dashboard/ToolsGrid";
@@ -11,6 +12,14 @@ import { Tool } from "@/models/course";
 const Dashboard = () => {
     const { user, userTools, isLoadingTools } = useUser();
     const [searchQuery, setSearchQuery] = useState("");
+    const router = useRouter();
+
+    useEffect(() => {
+
+        if(!user)
+            router.push("/login");
+
+    }, [user, router]);
 
     const filteredTools = userTools.filter((tool: Tool) => {
         if (!searchQuery.trim())

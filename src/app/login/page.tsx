@@ -18,7 +18,7 @@ const Login = () => {
     useEffect(() => {
 
         if(user)
-            router.replace("/");
+            router.replace("/dashboard");
 
     }, [user, router]);
 
@@ -29,7 +29,11 @@ const Login = () => {
         const username = (event.target as HTMLFormElement).username.value;
         const password = (event.target as HTMLFormElement).password.value;
         
-        login(username, password);
+        const success = await login(username, password);
+        // Navigation will happen automatically via useEffect when user state changes
+        if (!success) {
+            console.error('Login failed');
+        }
     };
 
     return (
