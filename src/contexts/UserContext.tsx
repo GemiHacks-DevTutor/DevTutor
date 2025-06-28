@@ -21,11 +21,9 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const useUser = () => {
-
   const context = useContext(UserContext);
   if (context === undefined)
     throw new Error('useUser must be used within a UserProvider');
-
   return context;
 };
 
@@ -34,25 +32,26 @@ interface UserProviderProps {
 }
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-
   const [user, setUser] = useState<User | null>(null);
   const [userTools, setUserTools] = useState<Tool[]>([]);
   const [isLoadingTools, setIsLoadingTools] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const refreshUserTools = useCallback(async () => {
-
+    console.log('refreshUserTools called, user:', user?.id);
     if(!user) return;
-    
     setIsLoadingTools(true);
 
     try {
+      console.log('Fetching tools from:', `/api/tools?id=${user.id}`);
       const response = await fetch(`/api/tools?id=${user.id}`);
       
       if (response.ok) {
         const data = await response.json();
+        console.log('Tools fetched successfully:', data);
         setUserTools(data.tools || []);
       } else {
+        console.log('Failed to fetch tools:', response.status, response.statusText);
         console.error('Failed to fetch tools');
         setUserTools([]);
       }
@@ -207,8 +206,11 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   // Load user tools when user changes
   useEffect(() => {
-    if(user && user.id)
+    console.log('UserContext: User changed:', user?.id ? `User ID: ${user.id}` : 'No user');
+    if(user && user.id) {
+      console.log('UserContext: Calling refreshUserTools');
       refreshUserTools();
+    }
   }, [user, refreshUserTools]);
 
   const value: UserContextType = {

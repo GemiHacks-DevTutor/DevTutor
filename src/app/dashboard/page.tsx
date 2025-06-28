@@ -1,52 +1,35 @@
 'use client';
 
-import { useUser } from "@/contexts/UserContext";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { ToolsSectionHeader } from "@/components/dashboard/ToolsSectionHeader";
-import { ToolsGrid } from "@/components/dashboard/ToolsGrid";
-import { ToolStats } from "@/components/dashboard/ToolStats";
-import { Tool } from "@/models/tool";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { AlertCircle } from "lucide-react";
+import { useUser } from '@/contexts/UserContext';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { ToolsSectionHeader } from '@/components/dashboard/ToolsSectionHeader';
+import { ToolsGrid } from '@/components/dashboard/ToolsGrid';
+import { ToolStats } from '@/components/dashboard/ToolStats';
+import { Tool } from '@/models/tool';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { AlertCircle } from 'lucide-react';
 
 const Dashboard = () => {
     const { user, userTools, isLoadingTools, createTool } = useUser();
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState('');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [toolName, setToolName] = useState("");
+    const [toolName, setToolName] = useState('');
     const [isCreatingTool, setIsCreatingTool] = useState(false);
     const [toolError, setToolError] = useState<string | null>(null);
     const router = useRouter();
 
     useEffect(() => {
-        if(!user) {
-            router.push("/login");
-        }
+        if (!user) router.push('/login');
     }, [user, router]);
 
-    // Show loading state if we're checking for user
-    if (user === null) {
-        return (
-            <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p>Loading dashboard...</p>
-                </div>
-            </div>
-        );
-    }
-
     const filteredTools = userTools.filter((tool: Tool) => {
-        if (!searchQuery.trim())
-            return true;
-        
+        if (!searchQuery.trim()) return true;
         const query = searchQuery.toLowerCase();
-        
         return (
             tool.name.toLowerCase().includes(query) ||
             tool.description.toLowerCase().includes(query) ||
@@ -54,9 +37,15 @@ const Dashboard = () => {
         );
     });
 
-    const handleCreateTool = () => {
+    const openDialog = () => {
         setToolError(null);
         setIsDialogOpen(true);
+    };
+
+    const closeDialog = () => {
+        setToolName('');
+        setToolError(null);
+        setIsDialogOpen(false);
     };
 
     const handleSubmitTool = async () => {
@@ -67,29 +56,26 @@ const Dashboard = () => {
         
         try {
             const result = await createTool(toolName.trim());
-            if (result.success) {
-                setToolName("");
-                setIsDialogOpen(false);
-            } else {
-                setToolError(result.error || 'Failed to create tool');
-            }
-        } catch (error) {
-            console.error('Error creating tool:', error);
+            if (result.success) closeDialog();
+            else setToolError(result.error || 'Failed to create tool');
+        } catch {
             setToolError('An unexpected error occurred');
         } finally {
             setIsCreatingTool(false);
         }
     };
 
-    const handleCancelTool = () => {
-        setToolName("");
-        setToolError(null);
-        setIsDialogOpen(false);
-    };
-
-    const handleClearSearch = () => {
-        setSearchQuery("");
-    };
+    if (!user) {
+        return (
+            <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p>No user found - redirecting to login...</p>
+                    <p className="text-sm text-gray-500 mt-2">Please log in to access the dashboard</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
@@ -105,7 +91,7 @@ const Dashboard = () => {
                         tools={userTools}
                         filteredTools={filteredTools}
                         searchQuery={searchQuery}
-                        onCreateTool={handleCreateTool}
+                        onCreateTool={openDialog}
                     />
                     
                     <ToolsGrid 
@@ -113,8 +99,8 @@ const Dashboard = () => {
                         isLoading={isLoadingTools || false}
                         error={null}
                         searchQuery={searchQuery}
-                        onCreateTool={handleCreateTool}
-                        onClearSearch={handleClearSearch}
+                        onCreateTool={openDialog}
+                        onClearSearch={() => setSearchQuery('')}
                     />
                 </div>
 
@@ -141,9 +127,7 @@ const Dashboard = () => {
                                 placeholder="Enter tool name (e.g., React, Angular)"
                                 className={`col-span-3 ${toolError ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !isCreatingTool) {
-                                        handleSubmitTool();
-                                    }
+                                    if (e.key === 'Enter' && !isCreatingTool) handleSubmitTool();
                                 }}
                                 disabled={isCreatingTool}
                             />
@@ -159,7 +143,7 @@ const Dashboard = () => {
                         )}
                     </div>
                     <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={handleCancelTool} disabled={isCreatingTool}>
+                        <Button variant="outline" onClick={closeDialog} disabled={isCreatingTool}>
                             Cancel
                         </Button>
                         <Button 

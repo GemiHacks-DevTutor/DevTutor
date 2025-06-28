@@ -1,6 +1,6 @@
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import UserAvatar from "@/components/UserAvatar";
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import UserAvatar from '@/components/UserAvatar';
 
 interface User {
   firstName?: string;

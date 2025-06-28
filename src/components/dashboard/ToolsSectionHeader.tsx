@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { Tool } from "@/models/tool";
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import { Tool } from '@/models/tool';
 
 interface ToolsSectionHeaderProps {
   tools: Tool[];

@@ -1,11 +1,11 @@
 'use client';
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { BookOpen, Star, Users } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { Tool } from "@/models/tool";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { BookOpen, Star, Users } from 'lucide-react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { Tool } from '@/models/tool';
 
 interface ToolCardProps {
     tool: Tool;

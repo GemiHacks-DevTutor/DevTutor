@@ -1,8 +1,8 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Search, Settings, Plus, Wrench } from "lucide-react";
-import ToolCard from "@/components/ToolCard";
-import { Tool } from "@/models/tool";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Search, Settings, Plus, Wrench } from 'lucide-react';
+import ToolCard from '@/components/ToolCard';
+import { Tool } from '@/models/tool';
 
 interface ToolsGridProps {
   filteredTools: Tool[];
@@ -88,7 +88,7 @@ export const ToolsGrid = ({
             <div className="space-y-2">
               <h3 className="text-2xl font-bold text-gray-700">No tools found</h3>
               <p className="text-gray-500 max-w-md text-lg">
-                No tools match your search for &ldquo;{searchQuery}&rdquo;. Try different keywords or create a new tool.
+                No tools match your search for &apos;{searchQuery}&apos;. Try different keywords or create a new tool.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 mt-6">

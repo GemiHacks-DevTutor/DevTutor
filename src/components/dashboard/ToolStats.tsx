@@ -1,15 +1,13 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Wrench, Settings } from "lucide-react";
-import { Tool } from "@/models/tool";
+import { Card, CardContent } from '@/components/ui/card';
+import { Wrench, Settings } from 'lucide-react';
+import { Tool } from '@/models/tool';
 
 interface ToolStatsProps {
   tools: Tool[];
 }
 
 export const ToolStats = ({ tools }: ToolStatsProps) => {
-  if (tools.length === 0) {
-    return null;
-  }
+  if (tools.length === 0) return null;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

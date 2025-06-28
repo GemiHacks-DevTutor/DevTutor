@@ -5,8 +5,7 @@ import { validateDevTool } from '@/lib/validation/devToolValidator';
 
 const MONGODB_URI = process.env.MONGODB_URI || '';
 
-export async function GET(req: NextRequest)
-{
+export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     if (!id)
@@ -39,26 +38,23 @@ export async function GET(req: NextRequest)
     });
 }
 
-export async function POST(request: NextRequest)
-{
+export async function POST(request: NextRequest) {
     const body = await request.json();
     const { toolName, id } = body;
 
-    if (!toolName || !id) {
+    if (!toolName || !id)
         return NextResponse.json(
             { error: 'toolName and id are required' },
             { status: 400 }
         );
-    }
 
     // Validate that the tool name is development-related
     const isValidDevTool = await validateDevTool(toolName);
-    if (!isValidDevTool) {
+    if (!isValidDevTool)
         return NextResponse.json(
             { error: 'Invalid tool. Please enter a programming language, framework, or development tool.' },
             { status: 400 }
         );
-    }
 
     const client = new MongoClient(MONGODB_URI);
     await client.connect();
@@ -76,8 +72,7 @@ export async function POST(request: NextRequest)
     const toolsCollection = db.collection('tools');
 
     const toolExists = await toolsCollection.findOne({ name: toolName});
-    if(toolExists)
-    {
+    if(toolExists) {
         await client.close();
         return NextResponse.json({
             success: true,
