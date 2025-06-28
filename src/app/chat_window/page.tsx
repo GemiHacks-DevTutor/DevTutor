@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useUser } from "@/contexts/UserContext";
 import { Input } from "@/components/ui/input";
@@ -75,7 +76,10 @@ export default function ChatWindow() {
     <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
       <Card className="flex flex-col flex-grow m-4">
         <CardHeader>
-          <CardTitle className="text-center">DevTutor</CardTitle>
+          <div className="flex justify-between items-center">
+            <Link href="/dashboard"><Button variant="outline">Home</Button></Link>
+            <CardTitle className="text-center flex-grow">DevTutor</CardTitle>
+          </div>
         </CardHeader>
         <CardContent className="flex flex-col flex-grow p-4">
           <ScrollArea className="flex-grow h-[calc(100vh-200px)] p-4 border rounded-md bg-white dark:bg-gray-800">
