@@ -38,21 +38,20 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const refreshUserTools = useCallback(async () => {
-    console.log('refreshUserTools called, user:', user?.id);
     if(!user) return;
-    setIsLoadingTools(true);
+        setIsLoadingTools(true);
 
     try {
-      console.log('Fetching tools from:', `/api/tools?id=${user.id}`);
       const response = await fetch(`/api/tools?id=${user.id}`);
       
       if (response.ok) {
         const data = await response.json();
-        console.log('Tools fetched successfully:', data);
         setUserTools(data.tools || []);
       } else {
-        console.log('Failed to fetch tools:', response.status, response.statusText);
-        console.error('Failed to fetch tools');
+        // Only log error if it's not a 404 (user not found is expected for new users)
+        if (response.status !== 404) {
+          console.error('Failed to fetch tools:', response.status);
+        }
         setUserTools([]);
       }
     } catch (error) {
@@ -95,7 +94,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           addUserTool(newTool);
           return { success: true };
         } else {
-          console.error('No tool data received from API');
           return { success: false, error: 'No tool data received from API' };
         }
       } else {

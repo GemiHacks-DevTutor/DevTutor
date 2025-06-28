@@ -3,13 +3,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { Course } from '@/models/course';
 import { User } from '@/models/user';
-import { useParams } from 'next/navigation';
 
 interface CourseContextType {
-  currentCourse: Course | null;
   userCourses: Course[];
-  isLoadingCourse: boolean;
-  isCreatingCourse: boolean;
+  isLoadingCourses: boolean;
   createCourse: (toolId: string) => Promise<boolean>;
   refreshUserCourses: () => Promise<void>;
 }
@@ -17,10 +14,11 @@ interface CourseContextType {
 const CourseContext = createContext<CourseContextType | undefined>(undefined);
 
 export const useCourse = () => {
+
   const context = useContext(CourseContext);
-  if (context === undefined) {
+  if (context === undefined)
     throw new Error('useCourse must be used within a CourseProvider');
-  }
+
   return context;
 };
 
@@ -30,50 +28,45 @@ interface CourseProviderProps {
 }
 
 export const CourseProvider: React.FC<CourseProviderProps> = ({ children, user }) => {
-  const [currentCourse, setCurrentCourse] = useState<Course | null>(null);
+
   const [userCourses, setUserCourses] = useState<Course[]>([]);
-  const [isLoadingCourse, setIsLoadingCourse] = useState(false);
-  const [isCreatingCourse, setIsCreatingCourse] = useState(false);
-  const params = useParams();
-  const toolId = params?.toolId as string;
+  const [isLoadingCourses, setIsLoadingCourses] = useState(false);
 
   const refreshUserCourses = useCallback(async () => {
-    if (!user?.id) return;
 
-    setIsLoadingCourse(true);
-    try {
+    if (!user?.id)  
+        return;
+
+    setIsLoadingCourses(true);
+
+    try
+    {
       const response = await fetch(`/api/courses?userId=${user.id}`);
       
-      if (response.ok) {
-        const data = await response.json();
-        setUserCourses(data.courses || []);
-        
-        // Find the current course for this tool
-        if (toolId) {
-          const course = data.courses?.find((c: Course) => c.toolId === toolId);
-          setCurrentCourse(course || null);
+        if(response.ok)
+        {
+            const data = await response.json();
+            setUserCourses(data.courses || []);
         }
-      } else {
-        console.error('Failed to fetch courses');
-        setUserCourses([]);
-        setCurrentCourse(null);
-      }
-    } catch (error) {
+        else
+            setUserCourses([]);
+
+    } catch (error)
+    {
       console.error('Error fetching courses:', error);
       setUserCourses([]);
-      setCurrentCourse(null);
-    } finally {
-      setIsLoadingCourse(false);
     }
-  }, [user?.id, toolId]);
+
+    setIsLoadingCourses(false);
+  }, [user]);
 
   const createCourse = async (toolId: string): Promise<boolean> => {
+
     if (!user?.id) {
       console.error('User not logged in');
       return false;
     }
 
-    setIsCreatingCourse(true);
     try {
       const response = await fetch('/api/courses', {
         method: 'POST',
@@ -90,43 +83,33 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children, user }
         
         if (newCourse) {
           setUserCourses(prev => [...prev, newCourse]);
-          
-          // If this is the current tool, set as current course
-          if (newCourse.toolId === toolId) {
-            setCurrentCourse(newCourse);
-          }
-          
           return true;
         } else {
-          console.error('No course data received from API');
           return false;
         }
       } else {
-        console.error('Failed to create course');
+        const errorData = await response.json();
+        console.error('Failed to create course:', errorData.error);
         return false;
       }
     } catch (error) {
       console.error('Error creating course:', error);
       return false;
-    } finally {
-      setIsCreatingCourse(false);
     }
   };
 
-  // Load user courses when user or toolId changes
+  // Load user courses when user changes
   useEffect(() => {
-    if (user?.id) {
+    if (user && user.id) {
       refreshUserCourses();
     }
-  }, [user?.id, toolId, refreshUserCourses]);
+  }, [user, refreshUserCourses]);
 
   const value: CourseContextType = {
-    currentCourse,
     userCourses,
-    isLoadingCourse,
-    isCreatingCourse,
+    isLoadingCourses,
     createCourse,
-    refreshUserCourses,
+    refreshUserCourses
   };
 
   return (

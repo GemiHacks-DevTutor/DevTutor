@@ -57,41 +57,63 @@ export async function POST(request: NextRequest) {
         );
 
     const client = new MongoClient(MONGODB_URI);
-    await client.connect();
+    
+    try {
+        await client.connect();
 
-    const db = client.db('devtutor');
-    const usersCollection = db.collection('users');
+        const db = client.db('devtutor');
+        const usersCollection = db.collection('users');
 
-    const user = await usersCollection.findOne({ _id: new ObjectId(id) });
-    if (!user)
-        return NextResponse.json(
-            { error: 'Must be a user.' },
-            { status: 404 }
-        );
+        const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+        if (!user)
+            return NextResponse.json(
+                { error: 'User not found' },
+                { status: 404 }
+            );
 
-    const toolsCollection = db.collection('tools');
+        const toolsCollection = db.collection('tools');
 
-    const toolExists = await toolsCollection.findOne({ name: toolName});
-    if(toolExists) {
-        await client.close();
+        // Check if user already has this tool
+        const toolExists = await toolsCollection.findOne({ 
+            name: toolName, 
+            userId: id 
+        });
+        
+        if(toolExists) {
+            return NextResponse.json({
+                success: true,
+                tool: {
+                    ...toolExists,
+                    id: toolExists._id.toString()
+                }
+            });
+        }
+
+        const generatedTool = await generateTool(toolName);
+        
+        const toolToSave = {
+            ...generatedTool,
+            userId: id
+        };
+        
+        const result = await toolsCollection.insertOne(toolToSave);
+        
+        const savedTool = {
+            ...toolToSave,
+            id: result.insertedId.toString()
+        };
+
         return NextResponse.json({
             success: true,
-            tool: toolExists
+            tool: savedTool,
         });
+    } catch (error) {
+        console.error('Error creating tool:', error);
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 }
+        );
+    } finally {
+        await client.close();
     }
-
-    const generatedTool = await generateTool(toolName);
-    const result = await toolsCollection.insertOne(generatedTool);
-    
-    const savedTool = {
-        ...generatedTool,
-        id: result.insertedId.toString()
-    };
-
-    await client.close();
-
-    return NextResponse.json({
-        success: true,
-        tool: savedTool,
-    });
 }

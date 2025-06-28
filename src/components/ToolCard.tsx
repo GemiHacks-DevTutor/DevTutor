@@ -6,6 +6,7 @@ import { BookOpen, Star, Users } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Tool } from '@/models/tool';
+import { useCourse } from '@/contexts/CourseContext';
 
 interface ToolCardProps {
     tool: Tool;
@@ -39,8 +40,11 @@ const getDifficultyIcon = (difficulty: string) => {
 
 const ToolCard = ({ tool }: ToolCardProps) => {
     const router = useRouter();
+    const { createCourse } = useCourse();
     
-    const handleStartLearning = () => {
+    const handleStartLearning = async () => {
+        // Create a course for this tool before navigating
+        await createCourse(tool.id);
         router.push(`/${tool.id}`);
     };
 

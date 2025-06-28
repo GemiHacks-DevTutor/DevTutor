@@ -1,9 +1,12 @@
 'use client';
 
 import { useUser } from '@/contexts/UserContext';
+import { useCourse } from '@/contexts/CourseContext';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { CoursesSectionHeader } from '@/components/dashboard/CoursesSectionHeader';
+import { CoursesGrid } from '@/components/dashboard/CoursesGrid';
 import { ToolsSectionHeader } from '@/components/dashboard/ToolsSectionHeader';
 import { ToolsGrid } from '@/components/dashboard/ToolsGrid';
 import { ToolStats } from '@/components/dashboard/ToolStats';
@@ -16,6 +19,7 @@ import { AlertCircle } from 'lucide-react';
 
 const Dashboard = () => {
     const { user, userTools, isLoadingTools, createTool } = useUser();
+    const { userCourses, isLoadingCourses } = useCourse();
     const [searchQuery, setSearchQuery] = useState('');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [toolName, setToolName] = useState('');
@@ -86,6 +90,17 @@ const Dashboard = () => {
                     onSearchChange={setSearchQuery}
                 />
                 
+                {/* Courses Section */}
+                <div className="mb-8">
+                    <CoursesSectionHeader courses={userCourses} />
+                    <CoursesGrid 
+                        courses={userCourses}
+                        tools={userTools}
+                        isLoading={isLoadingCourses}
+                    />
+                </div>
+                
+                {/* Tools Section */}
                 <div className="mb-8">
                     <ToolsSectionHeader 
                         tools={userTools}
