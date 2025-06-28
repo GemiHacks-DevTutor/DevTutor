@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useUser } from "@/contexts/UserContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,7 @@ export default function ChatWindow() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const { user, userTools } = useUser();
 
   const handleSendMessage = async () => {
     if (input.trim() === "") return;
@@ -39,7 +41,11 @@ export default function ChatWindow() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: userMessageText }),
+        body: JSON.stringify({
+          message: userMessageText,
+          user,
+          tools: userTools,
+        }),
       });
 
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
