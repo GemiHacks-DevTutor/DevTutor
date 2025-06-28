@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -18,6 +19,7 @@ import {
   RadioGroup,
   RadioGroupItem,
 } from "@/components/ui/radio-group"
+import { useUser } from "@/contexts/UserContext"
 
 const FormSchema = z.object({
   style: z.enum(["descriptive", "visual", "analogy"], {
@@ -35,45 +37,88 @@ const FormSchema = z.object({
 })
 
 export default function QuestionnairePage() {
+  const { user } = useUser()
+  const router = useRouter()
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   })
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        // Mapping function
-        const choiceToNumber = (field: string, value: string): number => {
-            const options: Record<string, string[]> = {
-            style: ["descriptive", "visual", "analogy"],
-            tone: ["teacher", "tutor", "peer"],
-            pace: ["step-by-step", "fail-fast"],
-            experience: ["beginner", "intermediate", "advanced"],
-            }
-
-            return options[field].indexOf(value)
-        }
-
-        // Convert all values
-        const transformed = {
-            style: choiceToNumber("style", data.style),
-            tone: choiceToNumber("tone", data.tone),
-            pace: choiceToNumber("pace", data.pace),
-            experience: choiceToNumber("experience", data.experience),
-        }
-
-        // Toast preview (optional)
-        toast("Mapped and submitted:", {
-            description: (
-            <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                <code className="text-white">{JSON.stringify(transformed, null, 2)}</code>
-            </pre>
-            ),
-        })
-
-        alert("Wassup");
-
-        // Send to API
-        // submitPreferences(transformed)
+  async function submitPreferences(data: {
+    answers: {
+      style: number
+      tone: number
+      pace: number
+      experience: number
+    },
+    userId: string | undefined
+  }) {
+    if (!data.userId) {
+      toast.error("You must be logged in to submit the questionnaire.")
+      return
     }
+
+    try {
+      const response = await fetch("/api/questionnaire", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Failed to submit preferences.")
+      }
+
+      toast.success("Preferences saved successfully!")
+      router.push("/dashboard") // Or wherever the user should go next
+    } catch (error) {
+      console.error("Submission error:", error, "Data:", data)
+      toast.error(
+        "Submission failed.",
+        {
+          description:
+            error instanceof Error
+              ? error.message
+              : `An unknown error occurred. Data: ${JSON.stringify(
+                  data,
+                )}`,
+        },
+        
+      )
+    }
+  }
+
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    // Mapping function
+    const choiceToNumber = (field: string, value: string): number => {
+      const options: Record<string, string[]> = {
+        style: ["descriptive", "visual", "analogy"],
+        tone: ["teacher", "tutor", "peer"],
+        pace: ["step-by-step", "fail-fast"],
+        experience: ["beginner", "intermediate", "advanced"],
+      }
+
+      return options[field].indexOf(value)
+    }
+
+    // Convert all values
+    const transformed = {
+      answers: {
+        style: choiceToNumber("style", data.style),
+        tone: choiceToNumber("tone", data.tone),
+        pace: choiceToNumber("pace", data.pace),
+        experience: choiceToNumber("experience", data.experience),
+      },
+    userId: user?.id, // Include the user's ID
+    }
+
+    // Send to API
+    await submitPreferences(transformed)
+
+  }
 
   return (
     <div className="dark bg-background text-foreground flex min-h-screen flex-col items-center justify-center p-4 sm:p-6">
