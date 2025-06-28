@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Tool } from '@/models/course';
+import { Tool } from '@/models/tool';
 
 interface CreateToolOptions {
   toolName: string;

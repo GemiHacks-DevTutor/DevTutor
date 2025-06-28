@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { Tool } from '@/models/course';
+import { Tool } from '@/models/tool';
 import { User } from '@/models/user';
 
 interface UserContextType {
@@ -12,6 +12,7 @@ interface UserContextType {
   setUser: (user: User | null) => void;
   addUserTool: (tool: Tool) => void;
   removeUserTool: (toolId: string) => void;
+  createTool: (toolName: string) => Promise<boolean>;
   login: (username: string, password: string) => Promise<boolean>;
   signup: (username: string, password: string, firstName?: string, lastName?: string) => Promise<boolean>;
   logout: () => void;
@@ -33,15 +34,18 @@ interface UserProviderProps {
 }
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
+
   const [user, setUser] = useState<User | null>(null);
   const [userTools, setUserTools] = useState<Tool[]>([]);
   const [isLoadingTools, setIsLoadingTools] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const refreshUserTools = useCallback(async () => {
+
     if(!user) return;
     
     setIsLoadingTools(true);
+
     try {
       const response = await fetch(`/api/tools?id=${user.id}`);
       
@@ -66,6 +70,43 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const removeUserTool = (toolId: string) => {
     setUserTools(prev => prev.filter(tool => tool.id !== toolId));
+  };
+
+  const createTool = async (toolName: string): Promise<boolean> => {
+    if (!user || !user.id) {
+      console.error('User not logged in');
+      return false;
+    }
+
+    try {
+      const response = await fetch('/api/tools', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          toolName,
+          id: user.id 
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const newTool = data.tool;
+        
+        if (newTool) {
+          addUserTool(newTool);
+          return true;
+        } else {
+          console.error('No tool data received from API');
+          return false;
+        }
+      } else {
+        console.error('Failed to create tool');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error creating tool:', error);
+      return false;
+    }
   };
 
   const login = async (username: string, password: string): Promise<boolean> => {
@@ -144,6 +185,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   useEffect(() => {
     // Load user from localStorage if available
     const savedUser = localStorage.getItem('user');
+    
     if (savedUser && savedUser !== 'undefined' && savedUser !== 'null') {
       try {
         const userData = JSON.parse(savedUser);
@@ -176,6 +218,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     setUser,
     addUserTool,
     removeUserTool,
+    createTool,
     login,
     signup,
     logout

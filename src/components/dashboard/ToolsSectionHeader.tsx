@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { Tool } from "@/models/course";
+import { Tool } from "@/models/tool";
 
 interface ToolsSectionHeaderProps {
   tools: Tool[];
@@ -18,7 +18,7 @@ export const ToolsSectionHeader = ({
   return (
     <div className="flex items-center justify-between mb-6">
       <h2 className="text-3xl font-bold text-gray-900">
-        {searchQuery.trim() ? 'Search Results' : 'Your Tools'}
+        {searchQuery.trim() ? 'Search Results' : 'Explore Tools'}
       </h2>
       <div className="flex items-center space-x-4">
         <span className="text-gray-600">
@@ -29,7 +29,7 @@ export const ToolsSectionHeader = ({
         </span>
         <Button onClick={onCreateTool} className="flex items-center space-x-2">
           <Plus className="h-4 w-4" />
-          <span>Create Tool</span>
+          <span>Add Tool</span>
         </Button>
       </div>
     </div>

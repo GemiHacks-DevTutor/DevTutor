@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Tool } from '@/models/course';
+import { Tool } from '@/models/tool';
 import { useUser } from '@/contexts/UserContext';
 
 export function useTools() {
