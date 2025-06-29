@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, Content } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 import { User } from "@/models/user";
 import { Tool } from "@/models/tool";
@@ -111,13 +111,49 @@ export async function POST(req: Request) {
       },
     });
 
-    const result = await chat.sendMessage(message);
-    const response = await result.response;
-    const text = response.text();
+    // Create a streaming response
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          const result = await chat.sendMessageStream(message);
+          
+          for await (const chunk of result.stream) {
+            const text = chunk.text();
+            if (text) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+            }
+          }
+          
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+          controller.close();
+        } catch (error) {
+          console.error("Streaming error:", error);
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: "Failed to get response" })}\n\n`));
+          controller.close();
+        }
+      }
+    });
 
-    return NextResponse.json({ response: text }, { status: 200 });
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
   } catch (error) {
     console.error("Error communicating with Gemini API:", error);
+    
+    // Check if it's a quota exceeded error and return a helpful message
+    const errorMessage = error instanceof Error ? error.message : '';
+    if (errorMessage.includes('429') || errorMessage.includes('quota') || errorMessage.includes('Too Many Requests')) {
+      return NextResponse.json(
+        { error: "I'm currently experiencing high demand. Please try again in a moment, or consider upgrading your API plan for uninterrupted service." },
+        { status: 429 }
+      );
+    }
+    
     return NextResponse.json(
       { error: "Failed to get response from Gemini API" },
       { status: 500 }
