@@ -9,6 +9,7 @@ interface CourseContextType {
   isLoadingCourses: boolean;
   createCourse: (toolId: string) => Promise<boolean>;
   refreshUserCourses: () => Promise<void>;
+  updateModuleProgress: (toolId: string, modulesCompleted: number) => Promise<boolean>;
 }
 
 const CourseContext = createContext<CourseContextType | undefined>(undefined);
@@ -98,6 +99,44 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children, user }
     }
   };
 
+  const updateModuleProgress = async (toolId: string, modulesCompleted: number): Promise<boolean> => {
+    if (!user?.id) {
+      console.error('User not logged in');
+      return false;
+    }
+
+    try {
+      const response = await fetch('/api/courses', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          toolId,
+          userId: user.id,
+          modulesCompleted
+        }),
+      });
+
+      if (response.ok) {
+        // Update local state
+        setUserCourses(prev => 
+          prev.map(course => 
+            course.toolId === toolId 
+              ? { ...course, modulesCompleted }
+              : course
+          )
+        );
+        return true;
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to update module progress:', errorData.error);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error updating module progress:', error);
+      return false;
+    }
+  };
+
   // Load user courses when user changes
   useEffect(() => {
     if (user && user.id) {
@@ -109,7 +148,8 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children, user }
     userCourses,
     isLoadingCourses,
     createCourse,
-    refreshUserCourses
+    refreshUserCourses,
+    updateModuleProgress
   };
 
   return (

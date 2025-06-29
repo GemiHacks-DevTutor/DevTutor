@@ -126,3 +126,72 @@ export async function POST(request: NextRequest) {
     await client.close();
   }
 }
+
+export async function PUT(request: NextRequest) {
+  const body = await request.json();
+  const { toolId, userId, modulesCompleted } = body;
+
+  if (!toolId || !userId || modulesCompleted === undefined) {
+    return NextResponse.json(
+      { error: 'toolId, userId, and modulesCompleted are required' },
+      { status: 400 }
+    );
+  }
+
+  const client = new MongoClient(MONGODB_URI);
+  
+  try {
+    await client.connect();
+    
+    const db = client.db('devtutor');
+    const usersCollection = db.collection('users');
+
+    // Verify user exists
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    const coursesCollection = db.collection('courses');
+
+    // Update the course's module progress
+    const result = await coursesCollection.updateOne(
+      { userId, toolId },
+      { 
+        $set: { 
+          modulesCompleted: Math.max(0, modulesCompleted),
+          updatedAt: new Date()
+        }
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      return NextResponse.json(
+        { error: 'Course not found' },
+        { status: 404 }
+      );
+    }
+
+    // Get the updated course
+    const updatedCourse = await coursesCollection.findOne({ userId, toolId });
+
+    return NextResponse.json({
+      success: true,
+      course: {
+        ...updatedCourse,
+        id: updatedCourse?._id.toString()
+      }
+    });
+  } catch (error) {
+    console.error('Error updating course progress:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  } finally {
+    await client.close();
+  }
+}
