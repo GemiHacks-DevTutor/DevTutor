@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
+import { useCourse } from "@/contexts/CourseContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,7 +32,9 @@ export default function ChatWindow() {
   const [loading, setLoading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [lastProgressCheck, setLastProgressCheck] = useState(0);
   const { user, userTools } = useUser();
+  const { userCourses, updateModuleProgress } = useCourse();
   const params = useParams();
   const toolId = params?.toolId as string;
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -72,17 +75,96 @@ export default function ChatWindow() {
     return tool;
   }, [toolId, userTools]);
 
+  const currentCourse = useMemo(() => {
+    if (!toolId || !userCourses) return null;
+    return userCourses.find(course => course.toolId === toolId);
+  }, [toolId, userCourses]);
+
+  // Get current module from tool's modules array
+  const getCurrentModule = useCallback(() => {
+    if (!currentTool || !currentCourse) return null;
+    const moduleIndex = currentCourse.modulesCompleted;
+    return currentTool.modules[moduleIndex] || null;
+  }, [currentTool, currentCourse]);
+
+  const currentModule = getCurrentModule();
+
+  // Function to check learning progress
+  const checkLearningProgress = async () => {
+    if (!currentTool || !currentCourse || messages.length < 6) return; // Need at least 3 exchanges
+    
+    // Only check every 4 messages to avoid excessive API calls
+    if (messages.length - lastProgressCheck < 4) return;
+
+    try {
+      const response = await fetch('/api/analyze-progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: messages.filter(msg => msg.sender === 'user' || msg.sender === 'ai'),
+          toolName: currentTool.name,
+          currentModule: currentCourse.modulesCompleted + 1
+        })
+      });
+
+      if (response.ok) {
+        const { analysis } = await response.json();
+        
+        if (analysis.moduleComplete && analysis.confidence > 0.7) {
+          const newModuleCount = currentCourse.modulesCompleted + 1;
+          const success = await updateModuleProgress(toolId, newModuleCount);
+          
+          if (success) {
+            // Get the completed module info
+            const completedModule = currentTool.modules[currentCourse.modulesCompleted];
+            const nextModule = currentTool.modules[newModuleCount];
+            
+            let congratsText = `🎉 **Congratulations!** You've completed "${completedModule?.title || `Module ${currentCourse.modulesCompleted + 1}`}" of ${currentTool.name}!\n\n**Topics you've mastered:**\n${analysis.topicsCovered.map((topic: string) => `• ${topic}`).join('\n')}\n\n`;
+            
+            if (nextModule) {
+              congratsText += `You're now ready for "${nextModule.title}". Great job! 👏`;
+            } else {
+              congratsText += `Amazing! You've completed all modules for ${currentTool.name}! 🎓\n\nFeel free to ask me any questions to reinforce your learning.`;
+            }
+            
+            // Add a congratulatory message
+            const congratsMessage: Message = {
+              id: Date.now() + 999,
+              text: congratsText,
+              sender: "ai",
+            };
+            
+            setMessages(prev => [...prev, congratsMessage]);
+            setLastProgressCheck(messages.length);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error checking progress:', error);
+    }
+  };
+
   // Add welcome message when component mounts
   useEffect(() => {
     if (currentTool && messages.length === 0) {
+      const currentModule = getCurrentModule();
+      
+      let welcomeText = `Hi ${user?.firstName || 'there'}! 👋 I'm DevTutor, your AI programming assistant.\n\n**Welcome to ${currentTool.name}`;
+      
+      if (currentModule) {
+        welcomeText += ` - ${currentModule.title}!**\n\n**${currentModule.description}**\n\nLet's start learning! What would you like to know about this module?`;
+      } else {
+        welcomeText += `!**\n\nYou've completed all available modules for this tool. Great job! 🎉\n\nFeel free to ask me any questions about ${currentTool.name} to reinforce your learning.`;
+      }
+
       const welcomeMessage: Message = {
         id: Date.now(),
-        text: `Hi ${user?.firstName || 'there'}! 👋 I'm DevTutor, your AI programming assistant. I'm here to help you learn **${currentTool.name}**!\n\nFeel free to ask me anything about ${currentTool.name} - from basic concepts to advanced topics. I can explain code, help with debugging, suggest best practices, and guide you through your learning journey.\n\nWhat would you like to learn about ${currentTool.name} today?`,
+        text: welcomeText,
         sender: "ai",
       };
       setMessages([welcomeMessage]);
     }
-  }, [currentTool, user, messages.length]);
+  }, [currentTool, user, messages.length, currentCourse, getCurrentModule]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -93,6 +175,15 @@ export default function ChatWindow() {
       }
     }
   }, [messages]);
+
+  // Check learning progress when messages change
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      checkLearningProgress();
+    }, 2000); // Wait 2 seconds after last message to check progress
+
+    return () => clearTimeout(timeoutId);
+  }, [messages]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSendMessage = async () => {
     if (input.trim() === "") return;
@@ -129,6 +220,11 @@ export default function ChatWindow() {
           message: userMessageText,
           user,
           tools: currentTool ? [currentTool] : [],
+          currentModule: currentModule ? {
+            ...currentModule,
+            moduleNumber: (currentCourse?.modulesCompleted || 0) + 1
+          } : null,
+          conversationHistory: messages.slice(-6) // Last 3 exchanges
         }),
       });
 
@@ -261,6 +357,21 @@ export default function ChatWindow() {
                     <span className="text-gray-600 dark:text-gray-400">
                       Learning {currentTool.name}
                     </span>
+                    {currentModule ? (
+                      <>
+                        <span className="text-gray-400 dark:text-gray-500">•</span>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          {currentModule.title}
+                        </span>
+                      </>
+                    ) : currentCourse && (
+                      <>
+                        <span className="text-gray-400 dark:text-gray-500">•</span>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          All Modules Complete
+                        </span>
+                      </>
+                    )}
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       currentTool.difficulty === 'beginner' 
                         ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
