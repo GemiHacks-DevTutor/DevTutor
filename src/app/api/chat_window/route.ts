@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI, Content } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 import { User } from "@/models/user";
-import { Tool } from "@/models/course";
+import { Tool } from "@/models/tool";
 
 // Assuming a Mongoose model for your metaprompts.
 // You would typically have this in a file like 'src/models/metaprompt.ts'
@@ -75,9 +75,26 @@ export async function POST(req: Request) {
   }
 
   if (tools && tools.length > 0) {
-    const toolNames = tools.map((t) => t.name).join(", ");
-    systemInstructionParts.push(`The user is currently working with these technologies: ${toolNames}. Please tailor your explanations and examples to these tools.`);
+      // Since we are now passing only the current tool, we can take the first element.
+      const currentTool = tools[0];
+      if (currentTool) {
+          systemInstructionParts.push(`The user is currently working with the tool: "${currentTool.name}".`);
+          systemInstructionParts.push(`Description of the tool: ${currentTool.description}`);
+
+          if (currentTool.modules && currentTool.modules.length > 0) {
+              const modulePrompts = currentTool.modules
+                  .map(module => `- ${module.title}: ${module.description}`)
+                  .join('\n');
+              
+              systemInstructionParts.push(
+                  `Base your tutoring on the following learning modules for this tool:\n${modulePrompts}`
+              );
+          }
+          
+          systemInstructionParts.push(`Please tailor your explanations and examples to the "${currentTool.name}" tool and its modules.`);
+      }
   }
+
 
   const systemInstruction = systemInstructionParts.join(" ");
 

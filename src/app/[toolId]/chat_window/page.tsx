@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useParams } from "next/navigation";
 import { useUser } from "@/contexts/UserContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,15 @@ export default function ChatWindow() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const { user, userTools } = useUser();
+  const params = useParams();
+  const toolId = params?.toolId as string;
+
+  const currentTool = useMemo(() => {
+    if (!toolId || !userTools) return null;
+    const tool = userTools.find((tool) => tool.id === toolId);
+    console.log("Current Tool Object:", tool);
+    return tool;
+  }, [toolId, userTools]);
 
   const handleSendMessage = async () => {
     if (input.trim() === "") return;
@@ -45,7 +55,7 @@ export default function ChatWindow() {
         body: JSON.stringify({
           message: userMessageText,
           user,
-          tools: userTools,
+          tools: currentTool ? [currentTool] : [],
         }),
       });
 
