@@ -1,20 +1,103 @@
-# DevTutor: Your AI-Powered Learning Companion 🤖🎓
+# DevTutor: AI-Powered Developer Learning Platform
 
-## Unlock Your Full Potential with Personalized Developer Education 🚀✨
+**🔗 [Live Demo](https://dev-tutor-ten.vercel.app)**
 
-In the rapidly evolving landscape of technology 👨‍💻, staying ahead requires continuous learning and adaptation. DevTutor is not just another learning platform; it's your intelligent, personalized guide 👨‍🏫 to mastering the developer tools and concepts that matter most to you. Leveraging the cutting-edge capabilities of Gemini 💎, DevTutor transforms the way you acquire knowledge, making it more intuitive, efficient, and tailored to your unique learning journey. 🧠
+## Overview
 
-### What is DevTutor? 🤔
+DevTutor is an intelligent learning platform that transforms how developers master new tools and technologies. By leveraging Google's Gemini AI, we've created a personalized educational experience that adapts to your learning style and pace.
 
-DevTutor is an innovative wrapper for the Gemini AI 🤖, meticulously designed to elevate your educational experience. We understand that every developer has a distinct learning style and specific career aspirations. That's why DevTutor goes beyond generic tutorials, offering a sophisticated system that:
+## The Problem We Solve
 
-*   **Intelligently Curates Courses:** 📚 Based on your chosen developer tools, preferred learning styles (e.g., visual 🖼️, auditory 🎧, kinesthetic ✍️, reading/writing 📖), and individual preferences, DevTutor dynamically generates custom learning paths. Say goodbye to one-size-fits-all education and embrace a curriculum crafted just for you. 🎨
-*   **Adapts to Your Pace:** 🏃‍♂️💨 Whether you're a beginner taking your first steps into coding or a seasoned professional looking to expand your skillset, DevTutor adapts to your learning speed and comprehension, ensuring an optimal and engaging experience.
-*   **Empowers Tool Mastery:** 🛠️ From popular frameworks to niche utilities, DevTutor helps you navigate the vast ecosystem of developer tools. Simply select the tools you wish to master, and let DevTutor guide you through comprehensive, practical learning modules. 🗺️
-*   **Fosters Deeper Understanding:** 💡 By leveraging Gemini's advanced capabilities, DevTutor provides explanations, examples, and interactive exercises that resonate with your learning preferences, leading to a more profound and lasting understanding of complex topics. 🤯
+As developers, we're constantly faced with reading difficult and often arcane documentation written by people who would rather be doing anything else. Traditional documentation is dry, generic, and doesn't adapt to different learning styles or experience levels.
 
-### Why Choose DevTutor? 🌟
+## What DevTutor Does
 
-*   **Personalization at its Core:** 💖 We believe that education should be as unique as you are. DevTutor's AI-driven personalization ensures that every lesson, every module, and every course is perfectly aligned with your needs and goals. 🎯
-*   **Efficiency Redefined:** ⚡ Stop wasting time sifting through irrelevant content. DevTutor streamlines your learning process, focusing on what truly matters to your development journey. 📈
-*   **Future-Proof Your Skills:** 🌐 The tech world never stands still, and neither should your learning. DevTutor helps you stay current with the latest advancements and trends, ensuring your skills remain relevant and in demand. [Learn More](https://dev-tutor-ten.vercel.app) 🔗
+- **Pre-loaded Courses**: Comes with comprehensive material for popular developer tools
+- **Dynamic Course Generation**: Request any dev tool and DevTutor will create a personalized course just for you
+- **Adaptive Learning**: AI adjusts teaching style based on your preferences and progress
+- **Interactive Experience**: Learn through conversation rather than static documentation
+
+## Key Features
+
+- **Personalized Learning Paths**: Courses tailored to your specific needs and learning style
+- **Real-time Progress Tracking**: Monitor your advancement through modules
+- **Intelligent AI Tutor**: Powered by Google's Gemini API for natural, conversational learning
+- **Tool Mastery Focus**: From popular frameworks to niche utilities
+- **Adaptive Pace**: Whether beginner or expert, the platform adjusts to your level
+
+## Tech Stack
+
+- **Frontend**: React, Next.js
+- **Backend**: Next.js API routes
+- **Database**: MongoDB
+- **AI**: Google Gemini API
+- **Authentication**: Custom user management
+- **Styling**: Tailwind CSS
+
+## How We Built It
+
+We used React and Next.js for a reactive frontend and streamlined backend architecture. Google's Gemini API powers both course generation and interactive tutoring sessions. The platform features a modular design that allows for easy expansion of courses and tools.
+
+## Challenges We Overcame
+
+We initially relied heavily on AI for development, which led to rapid prototyping but also required significant refactoring to maintain code quality and structure. This experience taught us the importance of maintaining control over our codebase while using AI as a supplemental tool.
+
+## What We're Proud Of
+
+- **Adaptive AI**: The system intelligently adjusts to user information and learning patterns
+- **Dynamic Course Creation**: Ability to generate comprehensive courses from scratch for any developer tool
+- **User Experience**: Seamless integration of AI tutoring with progress tracking
+
+## What We Learned
+
+The importance of maintaining architectural control while leveraging AI capabilities. While AI accelerated development, having a strong technical foundation and clear vision proved essential for creating a coherent, maintainable product.
+
+## Getting Started
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/RyanGarfinkel/DevTutor
+   cd devtutor
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   # Add your Gemini API key and MongoDB connection string
+   ```
+
+4. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open [http://localhost:3000](http://localhost:3000)** in your browser
+
+## Future Roadmap
+
+DevTutor serves as a powerful MVP with immense potential for growth. Our vision includes:
+
+- Enhanced personalization algorithms
+- Community-driven course contributions
+- Integration with popular development environments
+- Advanced analytics and learning insights
+- Mobile application development
+
+With proper planning, time, and resources, DevTutor could become an essential tool in every developer's learning arsenal.
+
+## Contributing
+
+We welcome contributions! Please see our contributing guidelines for more information.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+**Ready to revolutionize your learning experience? [Try DevTutor now!](https://dev-tutor-ten.vercel.app)
