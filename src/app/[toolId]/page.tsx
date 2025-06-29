@@ -10,7 +10,6 @@ import UserAvatar from '@/components/UserAvatar';
 import Link from 'next/link';
 import { 
   MessageCircle, 
-  Play, 
   BookOpen, 
   Target, 
   Clock, 
@@ -107,16 +106,11 @@ export default function ToolPage() {
             <Link href={`/${toolId}/chat_window`}>
               <Button size="lg" className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2">
                 <MessageCircle className="w-5 h-5" />
-                <span>Start AI Chat</span>
+                <span>Start Learning with AI</span>
               </Button>
             </Link>
             
-            {currentCourse ? (
-              <Button size="lg" variant="outline" className="font-semibold px-8 py-3 rounded-xl border-2 flex items-center space-x-2">
-                <Play className="w-5 h-5" />
-                <span>Continue Learning</span>
-              </Button>
-            ) : (
+            {!currentCourse && (
               <Button 
                 size="lg" 
                 variant="outline" 
@@ -214,9 +208,11 @@ export default function ToolPage() {
                     </div>
                     <div className="text-sm text-green-600 dark:text-green-400">Complete</div>
                   </div>
-                  <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white">
-                    Continue Learning
-                  </Button>
+                  <Link href={`/${toolId}/chat_window`}>
+                    <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white">
+                      Continue with AI Chat
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </CardContent>

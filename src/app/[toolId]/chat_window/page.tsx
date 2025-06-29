@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import UserAvatar from "@/components/UserAvatar";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, ArrowLeft } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -235,40 +235,55 @@ export default function ChatWindow() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
-      {/* Header with navigation and user avatar */}
-      <div className="flex items-center justify-between mb-6 max-w-6xl mx-auto">
-        <div className="flex flex-col space-y-2">
-          <Link href={`/${toolId}`}>
-            <Button variant="outline">← Back to Tool</Button>
-          </Link>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            DevTutor Chat
-          </h1>
-          {currentTool && (
-            <div className="flex items-center space-x-2">
-              <p className="text-gray-600 dark:text-gray-400">
-                Learning {currentTool.name}
-              </p>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                currentTool.difficulty === 'beginner' 
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-                  : currentTool.difficulty === 'intermediate'
-                  ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
-                  : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-              }`}>
-                {currentTool.difficulty}
-              </span>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
+      {/* Header */}
+      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Link href={`/${toolId}`}>
+                <Button 
+                  variant="ghost" 
+                  className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back to Tool</span>
+                </Button>
+              </Link>
+              <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
+              <div className="flex items-center space-x-3">
+                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  DevTutor Chat
+                </h1>
+                {currentTool && (
+                  <>
+                    <span className="text-gray-400 dark:text-gray-500">•</span>
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Learning {currentTool.name}
+                    </span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      currentTool.difficulty === 'beginner' 
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                        : currentTool.difficulty === 'intermediate'
+                        ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+                        : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                    }`}>
+                      {currentTool.difficulty}
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
-          )}
+            <UserAvatar />
+          </div>
         </div>
-        <UserAvatar />
       </div>
 
-      {/* Chat container */}
-      <div className="max-w-6xl mx-auto h-[80vh] flex flex-col">
-        <Card className="flex flex-col h-full">
-          <CardContent className="flex flex-col h-full p-6">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Chat container */}
+        <div className="max-w-6xl mx-auto h-[80vh] flex flex-col">
+          <Card className="flex flex-col h-full border-0 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm shadow-lg">
+            <CardContent className="flex flex-col h-full p-6">
             {/* Scrollable chat area */}
             <div className="flex-1 min-h-0 mb-4">
               <ScrollArea ref={scrollAreaRef} className="h-full p-4 border rounded-md bg-white dark:bg-gray-800">
@@ -442,9 +457,9 @@ export default function ChatWindow() {
                   "Send"
                 )}
               </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </div>            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
