@@ -17,6 +17,7 @@ interface UserContextType {
   login: (username: string, password: string) => Promise<boolean>;
   signup: (username: string, password: string, firstName?: string, lastName?: string) => Promise<boolean>;
   logout: () => void;
+  deleteAccount: () => Promise<{ success: boolean; error?: string }>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -223,6 +224,44 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     localStorage.removeItem('user');
   };
 
+  const deleteAccount = async (): Promise<{ success: boolean; error?: string }> => {
+    if (!user || !user.id) {
+      console.error('User not logged in');
+      return { success: false, error: 'User not logged in' };
+    }
+
+    try {
+      const response = await fetch('/api/delete-account', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          userId: user.id 
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.success) {
+          // Clear all user data and log out
+          setUser(null);
+          setUserTools([]);
+          localStorage.removeItem('user');
+          return { success: true };
+        } else {
+          return { success: false, error: data.error || 'Failed to delete account' };
+        }
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to delete account:', errorData.error);
+        return { success: false, error: errorData.error || 'Failed to delete account' };
+      }
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      return { success: false, error: 'Network error occurred' };
+    }
+  };
+
   useEffect(() => {
     // Load user from localStorage if available
     const savedUser = localStorage.getItem('user');
@@ -266,7 +305,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     submitQuestionnaire,
     login,
     signup,
-    logout
+    logout,
+    deleteAccount
   };
 
   return (
