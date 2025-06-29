@@ -127,12 +127,14 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       if (response.ok) {
         const data = await response.json();
         
-        if (data.success) {
-          // Update user to mark questionnaire as completed
-          setUser({
+        if (data.success)
+        {
+          const updatedUser = {
             ...user,
             hasCompletedSurvey: true
-          });
+          };
+          setUser(updatedUser);
+          localStorage.setItem('user', JSON.stringify(updatedUser));
           return { success: true };
         } else {
           return { success: false, error: data.error || 'Failed to submit questionnaire' };
