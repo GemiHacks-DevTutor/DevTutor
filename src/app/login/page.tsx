@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useUser } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect } from "react";
 
 
@@ -40,7 +41,16 @@ const Login = () => {
         <div className="flex min-h-screen items-center justify-center bg-neutral-100">
             <Card className="w-full max-w-lg px-8 py-10">
                 <CardHeader>
-                    <CardTitle className="text-3xl text-center w-full">Login</CardTitle>
+                    <div className="flex flex-col items-center space-y-4">
+                        <Image 
+                            src="/logo.png" 
+                            alt="DevTutor Logo" 
+                            width={120} 
+                            height={120}
+                            className="object-contain rounded-lg"
+                        />
+                        <CardTitle className="text-3xl text-center w-full">Login</CardTitle>
+                    </div>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center">
                     <form className="space-y-6 w-full flex flex-col items-center" onSubmit={handleSubmit}>
