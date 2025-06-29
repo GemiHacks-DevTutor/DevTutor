@@ -39,20 +39,17 @@ Here are the typical learning modules for ${toolName}:
 3. Functions and control flow
 4. Object-oriented programming (if applicable)
 5. Advanced features and best practices
-6. Practical applications and projects
-7. Error handling and debugging
-8. Performance optimization
-9. Testing and quality assurance
-10. Real-world project implementation
 
 Conversation to analyze:
 ${conversationSummary}
 
-Based on this conversation, has the student:
-1. Asked meaningful questions about the current module topics?
-2. Received comprehensive explanations?
-3. Demonstrated understanding through follow-up questions or examples?
-4. Covered the core concepts sufficiently to move to the next module?
+A module should be considered complete when the student has:
+1. Been introduced to the core concepts of the current module
+2. Asked relevant questions OR demonstrated understanding through responses
+3. Received explanations and examples for the main topics
+4. Had at least 2-3 meaningful exchanges about the module content
+
+Be LIBERAL with progression - if there's been meaningful discussion about the module topics and the student seems engaged, they're ready to advance. Learning is iterative and students benefit from moving forward.
 
 Respond with a JSON object containing:
 {
@@ -63,7 +60,7 @@ Respond with a JSON object containing:
   "summary": "Brief explanation of the analysis"
 }
 
-Be conservative - only mark a module as complete if there's clear evidence of comprehensive learning.
+IMPORTANT: Err strongly on the side of progression. If students have engaged with the material, mark as complete.
 `;
 
     const result = await model.generateContent(analysisPrompt);

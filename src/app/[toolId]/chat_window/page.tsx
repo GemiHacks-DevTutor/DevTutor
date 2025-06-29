@@ -34,7 +34,7 @@ export default function ChatWindow() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [lastProgressCheck, setLastProgressCheck] = useState(0);
   const { user, userTools } = useUser();
-  const { userCourses, updateModuleProgress } = useCourse();
+  const { userCourses, updateModuleProgress, refreshUserCourses } = useCourse();
   const params = useParams();
   const toolId = params?.toolId as string;
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -91,10 +91,16 @@ export default function ChatWindow() {
 
   // Function to check learning progress
   const checkLearningProgress = async () => {
-    if (!currentTool || !currentCourse || messages.length < 6) return; // Need at least 3 exchanges
+    if (!currentTool || !currentCourse || messages.length < 4) return; // Reduced from 6 to 4
     
-    // Only check every 4 messages to avoid excessive API calls
-    if (messages.length - lastProgressCheck < 4) return;
+    // Only check every 3 messages to be more responsive
+    if (messages.length - lastProgressCheck < 3) return;
+
+    console.log('🔍 Checking learning progress...', {
+      messagesLength: messages.length,
+      currentModule: currentCourse.modulesCompleted + 1,
+      toolName: currentTool.name
+    });
 
     try {
       const response = await fetch('/api/analyze-progress', {
@@ -109,10 +115,17 @@ export default function ChatWindow() {
 
       if (response.ok) {
         const { analysis } = await response.json();
+        console.log('📊 Progress analysis result:', analysis);
         
-        if (analysis.moduleComplete && analysis.confidence > 0.7) {
+        // Reduced confidence threshold from 0.7 to 0.5 for easier progression
+        if (analysis.moduleComplete && analysis.confidence > 0.5) {
+          console.log('✅ Module completion detected! Updating progress...');
+          
           const newModuleCount = currentCourse.modulesCompleted + 1;
+          console.log(`📈 Updating from ${currentCourse.modulesCompleted} to ${newModuleCount}`);
+          
           const success = await updateModuleProgress(toolId, newModuleCount);
+          console.log('💾 Database update result:', success);
           
           if (success) {
             // Get the completed module info
@@ -122,7 +135,7 @@ export default function ChatWindow() {
             let congratsText = `🎉 **Congratulations!** You've completed "${completedModule?.title || `Module ${currentCourse.modulesCompleted + 1}`}" of ${currentTool.name}!\n\n**Topics you've mastered:**\n${analysis.topicsCovered.map((topic: string) => `• ${topic}`).join('\n')}\n\n`;
             
             if (nextModule) {
-              congratsText += `You're now ready for "${nextModule.title}". Great job! 👏`;
+              congratsText += `🚀 **You're now ready for "${nextModule.title}"!** Let's continue with this next module!\n\n**${nextModule.title}**: ${nextModule.description}\n\nWhat would you like to learn about in this new module?`;
             } else {
               congratsText += `Amazing! You've completed all modules for ${currentTool.name}! 🎓\n\nFeel free to ask me any questions to reinforce your learning.`;
             }
@@ -136,11 +149,25 @@ export default function ChatWindow() {
             
             setMessages(prev => [...prev, congratsMessage]);
             setLastProgressCheck(messages.length);
+            
+            // Force a refresh of user courses to ensure UI is updated
+            console.log('🔄 Refreshing user courses...');
+            await refreshUserCourses();
+            console.log('✅ Course refresh completed');
+          } else {
+            console.error('❌ Failed to update module progress in database');
           }
+        } else {
+          console.log('⏳ Module not yet complete or confidence too low:', {
+            moduleComplete: analysis.moduleComplete,
+            confidence: analysis.confidence
+          });
         }
+      } else {
+        console.error('❌ Failed to analyze progress:', response.status);
       }
     } catch (error) {
-      console.error('Error checking progress:', error);
+      console.error('❌ Error checking progress:', error);
     }
   };
 
@@ -220,10 +247,7 @@ export default function ChatWindow() {
           message: userMessageText,
           user,
           tools: currentTool ? [currentTool] : [],
-          currentModule: currentModule ? {
-            ...currentModule,
-            moduleNumber: (currentCourse?.modulesCompleted || 0) + 1
-          } : null,
+          currentModule: currentCourse ? (currentCourse.modulesCompleted + 1) : 1,
           conversationHistory: messages.slice(-6) // Last 3 exchanges
         }),
       });

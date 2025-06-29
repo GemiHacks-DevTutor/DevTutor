@@ -157,12 +157,13 @@ export async function PUT(request: NextRequest) {
 
     const coursesCollection = db.collection('courses');
 
+    console.log('🔄 Updating course progress:', { toolId, userId, modulesCompleted });
     // Update the course's module progress
     const result = await coursesCollection.updateOne(
       { userId, toolId },
       { 
         $set: { 
-          modulesCompleted: Math.max(0, modulesCompleted),
+          modulesCompleted: Math.max(0, modulesCompleted + 1),
           updatedAt: new Date()
         }
       }
