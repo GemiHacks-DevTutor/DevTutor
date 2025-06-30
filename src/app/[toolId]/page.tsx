@@ -28,21 +28,21 @@ const features: Feature[] = [
     title: 'AI Assistant',
     description: 'Get instant help with coding questions, explanations, and debugging assistance powered by advanced AI.',
     action: 'Try it now →',
-    gradient: 'gradient-blue-purple',
+    gradient: 'from-blue-500 to-blue-600',
     href: 'chat_window'
   },
   {
     icon: Lightbulb,
     title: 'Interactive Learning',
     description: 'Learn through hands-on coding exercises, real-world projects, and interactive tutorials.',
-    gradient: 'gradient-green-teal',
+    gradient: 'from-green-500 to-green-600',
     meta: { icon: Clock, text: 'Self-paced' }
   },
   {
     icon: Trophy,
     title: 'Track Progress',
     description: 'Monitor your learning journey with detailed progress tracking and achievement badges.',
-    gradient: 'gradient-purple-pink'
+    gradient: 'from-purple-500 to-purple-600'
   }
 ];
 
