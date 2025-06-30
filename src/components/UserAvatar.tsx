@@ -1,11 +1,11 @@
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuItem } from "./ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "./ui/avatar";
-import { User, Settings, LogOut, Trash2 } from "lucide-react";
-import { useUser } from "@/contexts/UserContext";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { DeleteAccountDialog } from "./DeleteAccountDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuItem } from './ui/dropdown-menu';
+import { Avatar, AvatarFallback } from './ui/avatar';
+import { User, Settings, LogOut, Trash2 } from 'lucide-react';
+import { useUser } from '@/contexts/UserContext';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { DeleteAccountDialog } from './DeleteAccountDialog';
 
 const UserAvatar = () => {
     const { user, logout, deleteAccount } = useUser();
@@ -18,17 +18,17 @@ const UserAvatar = () => {
         try {
             const result = await deleteAccount();
             if (result.success) {
-                toast.success("Account deleted successfully");
-                router.push("/login");
-            } else {
-                toast.error("Failed to delete account", {
-                    description: result.error || "Please try again"
+                toast.success('Account deleted successfully');
+                router.push('/login');
+            } else 
+                toast.error('Failed to delete account', {
+                    description: result.error || 'Please try again'
                 });
-            }
+            
         } catch (error) {
             console.error('Error deleting account:', error);
-            toast.error("Failed to delete account", {
-                description: "An unexpected error occurred"
+            toast.error('Failed to delete account', {
+                description: 'An unexpected error occurred'
             });
         } finally {
             setIsDeleting(false);

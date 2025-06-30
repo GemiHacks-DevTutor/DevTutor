@@ -98,7 +98,7 @@ const Dashboard = () => {
         }
     };
 
-    if (!user) {
+    if (!user) 
         return (
             <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
                 <div className="text-center">
@@ -108,9 +108,9 @@ const Dashboard = () => {
                 </div>
             </div>
         );
-    }
+    
 
-    if (user && !user.hasCompletedSurvey) {
+    if (user && !user.hasCompletedSurvey) 
         return (
             <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
                 <div className="text-center">
@@ -120,7 +120,7 @@ const Dashboard = () => {
                 </div>
             </div>
         );
-    }
+    
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">

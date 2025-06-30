@@ -8,7 +8,7 @@ export async function validateDevTool(toolName: string): Promise<boolean> {
         }
 
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
         const prompt = `
 You are a validator for a developer learning platform. Your task is to determine if a given input is a valid programming language, framework, library, development tool, or technology that developers would learn.

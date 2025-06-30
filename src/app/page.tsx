@@ -9,16 +9,16 @@ const Home = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (user) {
+    if (user) 
       router.push('/dashboard');
-    } else if (!isLoggingIn) {
+     else if (!isLoggingIn) 
       router.push('/login');
-    }
+    
   }, [user, isLoggingIn, router]);
 
-  if (isLoggingIn) {
+  if (isLoggingIn) 
     return <div>Loading...</div>;
-  }
+  
 
   return (
     <div>

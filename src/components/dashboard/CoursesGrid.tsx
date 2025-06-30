@@ -15,7 +15,7 @@ export const CoursesGrid = ({ courses, tools, isLoading }: CoursesGridProps) => 
     return tools.find(tool => tool.id === course.toolId);
   };
 
-  if (isLoading) {
+  if (isLoading) 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[1, 2, 3].map((i) => (
@@ -36,9 +36,9 @@ export const CoursesGrid = ({ courses, tools, isLoading }: CoursesGridProps) => 
         ))}
       </div>
     );
-  }
+  
 
-  if (courses.length === 0) {
+  if (courses.length === 0) 
     return (
       <Card className="border-0 shadow-lg">
         <CardContent className="p-12 text-center">
@@ -56,7 +56,7 @@ export const CoursesGrid = ({ courses, tools, isLoading }: CoursesGridProps) => 
         </CardContent>
       </Card>
     );
-  }
+  
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

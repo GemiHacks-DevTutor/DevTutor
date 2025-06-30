@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,9 +8,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { AlertTriangle, Loader2 } from "lucide-react";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, Loader2 } from 'lucide-react';
 
 interface DeleteAccountDialogProps {
   isOpen: boolean;
@@ -25,13 +25,13 @@ export function DeleteAccountDialog({
   onConfirm, 
   isDeleting 
 }: DeleteAccountDialogProps) {
-  const [confirmationText, setConfirmationText] = useState("");
-  const CONFIRMATION_TEXT = "DELETE MY ACCOUNT";
+  const [confirmationText, setConfirmationText] = useState('');
+  const CONFIRMATION_TEXT = 'DELETE MY ACCOUNT';
 
   const handleConfirm = async () => {
-    if (confirmationText === CONFIRMATION_TEXT) {
+    if (confirmationText === CONFIRMATION_TEXT) 
       await onConfirm();
-    }
+    
   };
 
   const isConfirmDisabled = confirmationText !== CONFIRMATION_TEXT || isDeleting;
@@ -93,7 +93,7 @@ export function DeleteAccountDialog({
                 Deleting Account...
               </>
             ) : (
-              "Delete Account Permanently"
+              'Delete Account Permanently'
             )}
           </Button>
         </DialogFooter>

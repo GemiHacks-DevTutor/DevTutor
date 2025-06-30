@@ -6,12 +6,12 @@ const MONGODB_URI = process.env.MONGODB_URI || '';
 export async function POST(request: NextRequest) {
     const { userId, answers } = await request.json();
 
-    if (!userId || !answers) {
+    if (!userId || !answers) 
         return NextResponse.json(
             { success: false, error: 'User ID and answers are required' },
             { status: 400 }
         );
-    }
+    
 
     const client = new MongoClient(MONGODB_URI);
     try {
@@ -24,19 +24,19 @@ export async function POST(request: NextRequest) {
             { $set: { questionnaireAnswers: answers, hasCompletedSurvey: true } }
         );
 
-        if (result.matchedCount === 0) {
+        if (result.matchedCount === 0) 
             return NextResponse.json(
                 { success: false, error: 'User not found' },
                 { status: 404 }
             );
-        }
+        
 
-        if (result.modifiedCount === 0) {
+        if (result.modifiedCount === 0) 
             return NextResponse.json(
                 { success: false, error: 'Failed to update user with questionnaire answers' },
                 { status: 500 }
             );
-        }
+        
 
         return NextResponse.json(
             { success: true, message: 'Questionnaire answers saved successfully' },

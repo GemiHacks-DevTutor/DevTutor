@@ -21,7 +21,7 @@ export const ToolsGrid = ({
   onCreateTool, 
   onClearSearch 
 }: ToolsGridProps) => {
-  if (isLoading) {
+  if (isLoading) 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[1, 2, 3].map((i) => (
@@ -42,9 +42,9 @@ export const ToolsGrid = ({
         ))}
       </div>
     );
-  }
+  
 
-  if (error) {
+  if (error) 
     return (
       <Card className="border-0 shadow-lg">
         <CardContent className="p-12 text-center">
@@ -65,9 +65,9 @@ export const ToolsGrid = ({
         </CardContent>
       </Card>
     );
-  }
+  
 
-  if (filteredTools.length > 0) {
+  if (filteredTools.length > 0) 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredTools.map((tool) => (
@@ -75,9 +75,9 @@ export const ToolsGrid = ({
         ))}
       </div>
     );
-  }
+  
 
-  if (searchQuery.trim()) {
+  if (searchQuery.trim()) 
     return (
       <Card className="border-0 shadow-lg">
         <CardContent className="p-12 text-center">
@@ -113,7 +113,7 @@ export const ToolsGrid = ({
         </CardContent>
       </Card>
     );
-  }
+  
 
   return (
     <Card className="border-0 shadow-lg">

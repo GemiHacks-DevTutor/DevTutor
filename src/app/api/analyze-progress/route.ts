@@ -15,12 +15,12 @@ export async function POST(request: NextRequest) {
       currentModule: number;
     } = body;
 
-    if (!messages || !toolName) {
+    if (!messages || !toolName) 
       return NextResponse.json(
         { error: 'Messages and toolName are required' },
         { status: 400 }
       );
-    }
+    
 
     // Create a conversation summary for analysis
     const conversationSummary = messages
@@ -76,7 +76,7 @@ IMPORTANT: Err strongly on the side of progression. If students have engaged wit
           success: true,
           analysis
         });
-      } else {
+      } else 
         // Fallback if no valid JSON found
         return NextResponse.json({
           success: true,
@@ -85,10 +85,10 @@ IMPORTANT: Err strongly on the side of progression. If students have engaged wit
             confidence: 0.3,
             topicsCovered: [],
             nextModuleReady: false,
-            summary: "Could not properly analyze the conversation"
+            summary: 'Could not properly analyze the conversation'
           }
         });
-      }
+      
     } catch (parseError) {
       console.error('Error parsing AI response:', parseError);
       return NextResponse.json({
@@ -98,7 +98,7 @@ IMPORTANT: Err strongly on the side of progression. If students have engaged wit
           confidence: 0.2,
           topicsCovered: [],
           nextModuleReady: false,
-          summary: "Analysis failed due to parsing error"
+          summary: 'Analysis failed due to parsing error'
         }
       });
     }

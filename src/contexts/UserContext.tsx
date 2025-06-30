@@ -51,9 +51,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setUserTools(data.tools || []);
       } else {
         // Only log error if it's not a 404 (user not found is expected for new users)
-        if (response.status !== 404) {
+        if (response.status !== 404) 
           console.error('Failed to fetch tools:', response.status);
-        }
+        
         setUserTools([]);
       }
     } catch (error) {
@@ -95,9 +95,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         if (newTool) {
           addUserTool(newTool);
           return { success: true };
-        } else {
+        } else 
           return { success: false, error: 'No tool data received from API' };
-        }
+        
       } else {
         const errorData = await response.json();
         console.error('Failed to create tool:', errorData.error);
@@ -137,9 +137,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           setUser(updatedUser);
           localStorage.setItem('user', JSON.stringify(updatedUser));
           return { success: true };
-        } else {
+        } else 
           return { success: false, error: data.error || 'Failed to submit questionnaire' };
-        }
+        
       } else {
         const errorData = await response.json();
         console.error('Failed to submit questionnaire:', errorData.error);
@@ -248,9 +248,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           setUserTools([]);
           localStorage.removeItem('user');
           return { success: true };
-        } else {
+        } else 
           return { success: false, error: data.error || 'Failed to delete account' };
-        }
+        
       } else {
         const errorData = await response.json();
         console.error('Failed to delete account:', errorData.error);
@@ -266,31 +266,29 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     // Load user from localStorage if available
     const savedUser = localStorage.getItem('user');
     
-    if (savedUser && savedUser !== 'undefined' && savedUser !== 'null') {
+    if (savedUser && savedUser !== 'undefined' && savedUser !== 'null') 
       try {
         const userData = JSON.parse(savedUser);
-        if (userData && typeof userData === 'object' && userData.id) {
+        if (userData && typeof userData === 'object' && userData.id) 
           setUser(userData);
-        } else {
+         else 
           localStorage.removeItem('user');
-        }
+        
       } catch (error) {
         console.error('Error parsing saved user data:', error);
         localStorage.removeItem('user');
       }
-    } else if (savedUser) {
+     else if (savedUser) 
       // Clean up invalid localStorage values
       localStorage.removeItem('user');
-    }
+    
   }, []);
 
   // Load user tools when user changes
   useEffect(() => {
-    console.log('UserContext: User changed:', user?.id ? `User ID: ${user.id}` : 'No user');
-    if(user && user.id) {
-      console.log('UserContext: Calling refreshUserTools');
+
+    if(user && user.id)
       refreshUserTools();
-    }
   }, [user, refreshUserTools]);
 
   const value: UserContextType = {

@@ -34,9 +34,8 @@ Respond in this exact JSON format:
     const response = await model.generateContent(prompt);
 
     return parseToolResponse(response.response.text(), toolName);
-  } catch(error)
+  } catch
   {
-    console.log('Error generating tool:', error);
     throw new Error(`Failed to generate tool for ${toolName}`,);
   }
 };
@@ -66,9 +65,8 @@ const parseToolResponse = (responseText: string, toolName: string): Tool => {
         difficulty: parsed.difficulty || 'beginner',
         modules: modules    
     };
-  } catch (error)
+  } catch
   {
-    console.log('Error parsing tool response:', error);
     
     const fallbackId = `tool_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 

@@ -7,12 +7,12 @@ export async function DELETE(request: NextRequest) {
   const body = await request.json();
   const { userId } = body;
 
-  if (!userId) {
+  if (!userId) 
     return NextResponse.json(
       { error: 'userId is required' },
       { status: 400 }
     );
-  }
+  
 
   const client = new MongoClient(MONGODB_URI);
   
@@ -26,12 +26,12 @@ export async function DELETE(request: NextRequest) {
 
     // Verify user exists before deletion
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
-    if (!user) {
+    if (!user) 
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
       );
-    }
+    
 
     // Start a transaction to ensure all deletions succeed or none do
     const session = client.startSession();

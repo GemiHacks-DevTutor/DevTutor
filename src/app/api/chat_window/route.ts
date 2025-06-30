@@ -1,11 +1,11 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { NextResponse } from "next/server";
-import { User } from "@/models/user";
-import { Tool } from "@/models/tool";
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { NextResponse } from 'next/server';
+import { User } from '@/models/user';
+import { Tool } from '@/models/tool';
 
 // Assuming a Mongoose model for your metaprompts.
 // You would typically have this in a file like 'src/models/metaprompt.ts'
-import mongoose, { Schema, Document, models, Model } from "mongoose";
+import mongoose, { Schema, Document, models, Model } from 'mongoose';
 
 // --- Assumed Database and Model Setup ---
 
@@ -21,13 +21,13 @@ const MetaPromptSchema: Schema = new Schema({
 
 // Prevent model overwrite in Next.js hot-reloading environments
 const MetaPrompt: Model<IMetaPrompt> =
-  models.MetaPrompt || mongoose.model<IMetaPrompt>("MetaPrompt", MetaPromptSchema);
+  models.MetaPrompt || mongoose.model<IMetaPrompt>('MetaPrompt', MetaPromptSchema);
 
 // Assuming a dbConnect utility in your project
 async function dbConnect() {
-  if (mongoose.connection.readyState >= 1) {
+  if (mongoose.connection.readyState >= 1) 
     return;
-  }
+  
   // Ensure you have MONGODB_URI in your .env.local file
   return mongoose.connect(process.env.MONGODB_URI!);
 }
@@ -37,14 +37,14 @@ async function dbConnect() {
 // Helper function to get module-specific teaching guidance
 function getModuleGuidance(moduleNumber: number): string {
   const guidance: { [key: number]: string } = {
-    1: "You're teaching Module 1 (Fundamentals). Focus on: 1) Introducing basic concepts clearly 2) Using simple examples 3) Asking occasional check-in questions 4) Building confidence 5) Moving forward once basics are understood. Keep the conversation flowing naturally.",
-    2: "You're teaching Module 2 (Data Structures). Focus on: 1) Building on Module 1 2) Showing practical examples 3) Interactive learning with real scenarios 4) Progressing naturally through topics 5) Ensuring understanding before moving on. Maintain conversational flow.",
-    3: "You're teaching Module 3 (Functions & Control Flow). Focus on: 1) Connecting to previous modules 2) Teaching through examples and practice 3) Natural progression through concepts 4) Interactive but forward-moving discussions 5) Testing understanding appropriately. Keep momentum.",
-    4: "You're teaching Module 4 (OOP/Advanced Concepts). Focus on: 1) Building on previous knowledge 2) Real-world applications 3) Progressive complexity 4) Interactive learning with forward momentum 5) Practical understanding. Natural conversation flow.",
-    5: "You're teaching Module 5 (Best Practices). Focus on: 1) Code quality concepts 2) Practical patterns 3) Real-world scenarios 4) Progressive learning 5) Preparing for practical application. Keep conversations engaging and progressive."
+    1: 'You\'re teaching Module 1 (Fundamentals). Focus on: 1) Introducing basic concepts clearly 2) Using simple examples 3) Asking occasional check-in questions 4) Building confidence 5) Moving forward once basics are understood. Keep the conversation flowing naturally.',
+    2: 'You\'re teaching Module 2 (Data Structures). Focus on: 1) Building on Module 1 2) Showing practical examples 3) Interactive learning with real scenarios 4) Progressing naturally through topics 5) Ensuring understanding before moving on. Maintain conversational flow.',
+    3: 'You\'re teaching Module 3 (Functions & Control Flow). Focus on: 1) Connecting to previous modules 2) Teaching through examples and practice 3) Natural progression through concepts 4) Interactive but forward-moving discussions 5) Testing understanding appropriately. Keep momentum.',
+    4: 'You\'re teaching Module 4 (OOP/Advanced Concepts). Focus on: 1) Building on previous knowledge 2) Real-world applications 3) Progressive complexity 4) Interactive learning with forward momentum 5) Practical understanding. Natural conversation flow.',
+    5: 'You\'re teaching Module 5 (Best Practices). Focus on: 1) Code quality concepts 2) Practical patterns 3) Real-world scenarios 4) Progressive learning 5) Preparing for practical application. Keep conversations engaging and progressive.'
   };
   
-  return guidance[moduleNumber] || "Focus on interactive teaching while maintaining forward progress through the material. Avoid getting stuck in loops of questions.";
+  return guidance[moduleNumber] || 'Focus on interactive teaching while maintaining forward progress through the material. Avoid getting stuck in loops of questions.';
 }
 
 // --- End of Helper Functions ---
@@ -64,19 +64,19 @@ export async function POST(req: Request) {
     conversationHistory?: { sender: string; text: string }[];
   };
 
-  if (!message) {
-    return NextResponse.json({ error: "Message is required" }, { status: 400 });
-  }
+  if (!message) 
+    return NextResponse.json({ error: 'Message is required' }, { status: 400 });
+  
 
   // 1. Construct the system prompt with user and course context
   const systemInstructionParts: string[] = [
-    "You are DevTutor, an expert programming tutor. Your teaching philosophy:",
-    "- Ask probing questions to assess understanding before moving forward",
-    "- Provide hands-on examples and encourage the student to try coding",
-    "- Break complex concepts into digestible steps",
-    "- Ask follow-up questions to ensure comprehension",
-    "- Give encouraging feedback and correct misconceptions gently",
-    "- Challenge students with progressively harder questions as they show mastery",
+    'You are DevTutor, an expert programming tutor. Your teaching philosophy:',
+    '- Ask probing questions to assess understanding before moving forward',
+    '- Provide hands-on examples and encourage the student to try coding',
+    '- Break complex concepts into digestible steps',
+    '- Ask follow-up questions to ensure comprehension',
+    '- Give encouraging feedback and correct misconceptions gently',
+    '- Challenge students with progressively harder questions as they show mastery',
   ];
 
   // Add module-specific guidance
@@ -103,9 +103,9 @@ export async function POST(req: Request) {
 
       for (const [question, answerIndex] of Object.entries(user.questionnaireAnswers)) {
         const prompts = metaPromptsMap.get(question);
-        if (prompts && prompts[answerIndex]) {
+        if (prompts && prompts[answerIndex]) 
           systemInstructionParts.push(prompts[answerIndex]);
-        }
+        
       }
     }
   }
@@ -132,12 +132,12 @@ export async function POST(req: Request) {
   }
 
 
-  const systemInstruction = systemInstructionParts.join(" ");
+  const systemInstruction = systemInstructionParts.join(' ');
 
   try {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: 'gemini-2.5-flash',
       systemInstruction,
     });
 
@@ -156,16 +156,16 @@ export async function POST(req: Request) {
           
           for await (const chunk of result.stream) {
             const text = chunk.text();
-            if (text) {
+            if (text) 
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
-            }
+            
           }
           
           controller.enqueue(encoder.encode('data: [DONE]\n\n'));
           controller.close();
         } catch (error) {
-          console.error("Streaming error:", error);
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: "Failed to get response" })}\n\n`));
+          console.error('Streaming error:', error);
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: 'Failed to get response' })}\n\n`));
           controller.close();
         }
       }
@@ -179,19 +179,19 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    console.error("Error communicating with Gemini API:", error);
+    console.error('Error communicating with Gemini API:', error);
     
     // Check if it's a quota exceeded error and return a helpful message
     const errorMessage = error instanceof Error ? error.message : '';
-    if (errorMessage.includes('429') || errorMessage.includes('quota') || errorMessage.includes('Too Many Requests')) {
+    if (errorMessage.includes('429') || errorMessage.includes('quota') || errorMessage.includes('Too Many Requests')) 
       return NextResponse.json(
-        { error: "I'm currently experiencing high demand. Please try again in a moment, or consider upgrading your API plan for uninterrupted service." },
+        { error: 'I\'m currently experiencing high demand. Please try again in a moment, or consider upgrading your API plan for uninterrupted service.' },
         { status: 429 }
       );
-    }
+    
     
     return NextResponse.json(
-      { error: "Failed to get response from Gemini API" },
+      { error: 'Failed to get response from Gemini API' },
       { status: 500 }
     );
   }

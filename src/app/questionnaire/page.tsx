@@ -1,13 +1,13 @@
-"use client"
+'use client'
 
-import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { toast } from "sonner"
-import { z } from "zod"
-import { useEffect } from "react"
+import { useRouter } from 'next/navigation'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
+import { useEffect } from 'react'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -15,25 +15,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
+} from '@/components/ui/form'
 import {
   RadioGroup,
   RadioGroupItem,
-} from "@/components/ui/radio-group"
-import { useUser } from "@/contexts/UserContext"
+} from '@/components/ui/radio-group'
+import { useUser } from '@/contexts/UserContext'
 
 const FormSchema = z.object({
-  style: z.enum(["descriptive", "visual", "analogy"], {
-    required_error: "You need to select a learning style.",
+  style: z.enum(['descriptive', 'visual', 'analogy'], {
+    required_error: 'You need to select a learning style.',
   }),
-  tone: z.enum(["teacher", "tutor", "peer"], {
-    required_error: "You need to select a tone for your teacher.",
+  tone: z.enum(['teacher', 'tutor', 'peer'], {
+    required_error: 'You need to select a tone for your teacher.',
   }),
-  pace: z.enum(["step-by-step", "fail-fast"], {
-    required_error: "You need to select a learning pace.",
+  pace: z.enum(['step-by-step', 'fail-fast'], {
+    required_error: 'You need to select a learning pace.',
   }),
-  experience: z.enum(["beginner", "intermediate", "advanced"], {
-    required_error: "You need to select your preferred experience.",
+  experience: z.enum(['beginner', 'intermediate', 'advanced'], {
+    required_error: 'You need to select your preferred experience.',
   }),
 })
 
@@ -59,22 +59,22 @@ export default function QuestionnairePage() {
   }, [user, router]);
 
   // Early returns for redirects
-  if (!user) {
+  if (!user) 
     return <div>Redirecting to login...</div>;
-  }
+  
 
-  if (user && user.hasCompletedSurvey) {
+  if (user && user.hasCompletedSurvey) 
     return <div>Redirecting to dashboard...</div>;
-  }
+  
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     // Mapping function
     const choiceToNumber = (field: string, value: string): number => {
       const options: Record<string, string[]> = {
-        style: ["descriptive", "visual", "analogy"],
-        tone: ["teacher", "tutor", "peer"],
-        pace: ["step-by-step", "fail-fast"],
-        experience: ["beginner", "intermediate", "advanced"],
+        style: ['descriptive', 'visual', 'analogy'],
+        tone: ['teacher', 'tutor', 'peer'],
+        pace: ['step-by-step', 'fail-fast'],
+        experience: ['beginner', 'intermediate', 'advanced'],
       }
 
       return options[field].indexOf(value)
@@ -82,23 +82,23 @@ export default function QuestionnairePage() {
 
     // Convert all values
     const answers = {
-      style: choiceToNumber("style", data.style),
-      tone: choiceToNumber("tone", data.tone),
-      pace: choiceToNumber("pace", data.pace),
-      experience: choiceToNumber("experience", data.experience),
+      style: choiceToNumber('style', data.style),
+      tone: choiceToNumber('tone', data.tone),
+      pace: choiceToNumber('pace', data.pace),
+      experience: choiceToNumber('experience', data.experience),
     }
 
     // Submit using UserContext
     const result = await submitQuestionnaire(answers);
     
     if (result.success) {
-      toast.success("Preferences saved successfully!");
-      router.push("/dashboard");
-    } else {
-      toast.error("Submission failed.", {
-        description: result.error || "An unknown error occurred."
+      toast.success('Preferences saved successfully!');
+      router.push('/dashboard');
+    } else 
+      toast.error('Submission failed.', {
+        description: result.error || 'An unknown error occurred.'
       });
-    }
+    
   }
 
   return (

@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
             userId: id 
         });
         
-        if(toolExists) {
+        if(toolExists) 
             return NextResponse.json({
                 success: true,
                 tool: {
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
                     id: toolExists._id.toString()
                 }
             });
-        }
+        
 
         const generatedTool = await generateTool(toolName);
         

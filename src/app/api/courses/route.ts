@@ -7,12 +7,12 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get('userId');
   
-  if (!userId) {
+  if (!userId) 
     return NextResponse.json(
       { error: 'Missing userId parameter' },
       { status: 400 }
     );
-  }
+  
 
   const client = new MongoClient(MONGODB_URI);
   
@@ -24,12 +24,12 @@ export async function GET(req: NextRequest) {
 
     // Verify user exists
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
-    if (!user) {
+    if (!user) 
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
       );
-    }
+    
 
     const coursesCollection = db.collection('courses');
 
@@ -58,12 +58,12 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { toolId, userId } = body;
 
-  if (!toolId || !userId) {
+  if (!toolId || !userId) 
     return NextResponse.json(
       { error: 'toolId and userId are required' },
       { status: 400 }
     );
-  }
+  
 
   const client = new MongoClient(MONGODB_URI);
   
@@ -75,18 +75,18 @@ export async function POST(request: NextRequest) {
 
     // Verify user exists
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
-    if (!user) {
+    if (!user) 
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
       );
-    }
+    
 
     const coursesCollection = db.collection('courses');
 
     // Check if course already exists for this user and tool
     const existingCourse = await coursesCollection.findOne({ userId, toolId });
-    if (existingCourse) {
+    if (existingCourse) 
       return NextResponse.json({
         success: true,
         course: {
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
           id: existingCourse._id.toString()
         }
       });
-    }
+    
 
     // Create new course
     const newCourse = {
@@ -131,12 +131,12 @@ export async function PUT(request: NextRequest) {
   const body = await request.json();
   const { toolId, userId, modulesCompleted } = body;
 
-  if (!toolId || !userId || modulesCompleted === undefined) {
+  if (!toolId || !userId || modulesCompleted === undefined) 
     return NextResponse.json(
       { error: 'toolId, userId, and modulesCompleted are required' },
       { status: 400 }
     );
-  }
+  
 
   const client = new MongoClient(MONGODB_URI);
   
@@ -146,19 +146,16 @@ export async function PUT(request: NextRequest) {
     const db = client.db('devtutor');
     const usersCollection = db.collection('users');
 
-    // Verify user exists
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
-    if (!user) {
+    if (!user) 
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
       );
-    }
+    
 
     const coursesCollection = db.collection('courses');
 
-    console.log('🔄 Updating course progress:', { toolId, userId, modulesCompleted });
-    // Update the course's module progress
     const result = await coursesCollection.updateOne(
       { userId, toolId },
       { 
@@ -169,14 +166,12 @@ export async function PUT(request: NextRequest) {
       }
     );
 
-    if (result.matchedCount === 0) {
+    if (result.matchedCount === 0) 
       return NextResponse.json(
         { error: 'Course not found' },
         { status: 404 }
       );
-    }
-
-    // Get the updated course
+    
     const updatedCourse = await coursesCollection.findOne({ userId, toolId });
 
     return NextResponse.json({

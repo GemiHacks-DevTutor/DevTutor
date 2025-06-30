@@ -85,9 +85,9 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children, user }
         if (newCourse) {
           setUserCourses(prev => [...prev, newCourse]);
           return true;
-        } else {
+        } else 
           return false;
-        }
+        
       } else {
         const errorData = await response.json();
         console.error('Failed to create course:', errorData.error);
@@ -100,14 +100,11 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children, user }
   };
 
   const updateModuleProgress = async (toolId: string, modulesCompleted: number): Promise<boolean> => {
-    if (!user?.id) {
-      console.error('User not logged in');
+    if (!user?.id)
       return false;
-    }
 
-    console.log('🔄 Updating module progress:', { toolId, userId: user.id, modulesCompleted });
-
-    try {
+    try
+    {
       const response = await fetch('/api/courses', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -118,39 +115,31 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children, user }
         }),
       });
 
-      console.log('📡 API response status:', response.status);
-
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log('✅ API response data:', responseData);
-        
-        // Update local state
+      if (response.ok)
+      {
         setUserCourses(prev => {
           const updated = prev.map(course => 
             course.toolId === toolId 
               ? { ...course, modulesCompleted }
               : course
           );
-          console.log('🔄 Updated local courses state:', updated);
+          
           return updated;
         });
+
         return true;
-      } else {
-        const errorData = await response.json();
-        console.error('❌ Failed to update module progress:', errorData.error);
+      } else
         return false;
-      }
-    } catch (error) {
-      console.error('❌ Error updating module progress:', error);
+    } catch
+    {
       return false;
     }
   };
 
-  // Load user courses when user changes
   useEffect(() => {
-    if (user && user.id) {
+    if (user && user.id) 
       refreshUserCourses();
-    }
+    
   }, [user, refreshUserCourses]);
 
   const value: CourseContextType = {
