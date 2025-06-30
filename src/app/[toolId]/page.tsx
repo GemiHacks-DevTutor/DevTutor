@@ -1,16 +1,14 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/button';
 import { useCourse } from '@/contexts/CourseContext';
-import UserAvatar from '@/components/UserAvatar';
 import Link from 'next/link';
 import { 
   MessageCircle, 
   BookOpen, 
-  ArrowLeft,
   Code,
   Lightbulb,
   Trophy,
@@ -22,6 +20,7 @@ import {
   StartJourneyCard,
   Feature
 } from '@/components/tool-page/ToolPageComponents';
+import { PageHeader } from '@/components/PageHeader';
 
 const features: Feature[] = [
   {
@@ -29,21 +28,21 @@ const features: Feature[] = [
     title: 'AI Assistant',
     description: 'Get instant help with coding questions, explanations, and debugging assistance powered by advanced AI.',
     action: 'Try it now →',
-    gradient: 'from-blue-500 to-blue-600',
+    gradient: 'gradient-blue-purple',
     href: 'chat_window'
   },
   {
     icon: Lightbulb,
     title: 'Interactive Learning',
     description: 'Learn through hands-on coding exercises, real-world projects, and interactive tutorials.',
-    gradient: 'from-green-500 to-green-600',
+    gradient: 'gradient-green-teal',
     meta: { icon: Clock, text: 'Self-paced' }
   },
   {
     icon: Trophy,
     title: 'Track Progress',
     description: 'Monitor your learning journey with detailed progress tracking and achievement badges.',
-    gradient: 'from-purple-500 to-purple-600'
+    gradient: 'gradient-purple-pink'
   }
 ];
 
@@ -52,7 +51,6 @@ const ToolPage = () => {
   const { userTools } = useUser();
   const { userCourses, createCourse } = useCourse();
   const params = useParams();
-  const router = useRouter();
   const toolId = params?.toolId as string;
   
   const currentTool = userTools.find(tool => tool.id === toolId);
@@ -68,29 +66,14 @@ const ToolPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
-      {/* Header */}
-      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button 
-                variant="ghost" 
-                onClick={() => router.push('/dashboard')}
-                className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Dashboard</span>
-              </Button>
-              <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                {currentTool?.name || toolId}
-              </h1>
-            </div>
-            <UserAvatar />
-          </div>
-        </div>
-      </div>
+    <div className="app-background">
+      <PageHeader
+        title={currentTool?.name || toolId}
+        backButton={{
+          href: '/dashboard',
+          label: 'Dashboard'
+        }}
+      />
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">

@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useUser } from '@/contexts/UserContext';
@@ -10,8 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import UserAvatar from '@/components/UserAvatar';
-import { Copy, Check, ArrowLeft } from 'lucide-react';
+import { Copy, Check } from 'lucide-react';
+import { PageHeader } from '@/components/PageHeader';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -357,63 +356,42 @@ export default function ChatWindow() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
-      <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link href={`/${toolId}`}>
-                <Button 
-                  variant="ghost" 
-                  className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Back to Tool</span>
-                </Button>
-              </Link>
-              <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
-              <div className="flex items-center space-x-3">
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  DevTutor Chat
-                </h1>
-                {currentTool && (
-                  <>
-                    <span className="text-gray-400 dark:text-gray-500">•</span>
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Learning {currentTool.name}
-                    </span>
-                    {currentModule ? (
-                      <>
-                        <span className="text-gray-400 dark:text-gray-500">•</span>
-                        <span className="text-gray-600 dark:text-gray-400">
-                          {currentModule.title}
-                        </span>
-                      </>
-                    ) : currentCourse && (
-                      <>
-                        <span className="text-gray-400 dark:text-gray-500">•</span>
-                        <span className="text-gray-600 dark:text-gray-400">
-                          All Modules Complete
-                        </span>
-                      </>
-                    )}
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      currentTool.difficulty === 'beginner' 
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-                        : currentTool.difficulty === 'intermediate'
-                        ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
-                        : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                    }`}>
-                      {currentTool.difficulty}
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
-            <UserAvatar />
-          </div>
-        </div>
-      </div>
+    <div className="app-background">
+      <PageHeader
+        title="DevTutor Chat"
+        subtitle={currentTool ? `Learning ${currentTool.name}` : undefined}
+        backButton={{
+          href: `/${toolId}`,
+          label: 'Back to Tool'
+        }}
+      >
+        {currentModule ? (
+          <>
+            <span className="text-gray-400 dark:text-gray-500">•</span>
+            <span className="text-gray-600 dark:text-gray-400">
+              {currentModule.title}
+            </span>
+          </>
+        ) : currentCourse && (
+          <>
+            <span className="text-gray-400 dark:text-gray-500">•</span>
+            <span className="text-gray-600 dark:text-gray-400">
+              All Modules Complete
+            </span>
+          </>
+        )}
+        {currentTool && (
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+            currentTool.difficulty === 'beginner' 
+              ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+              : currentTool.difficulty === 'intermediate'
+              ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+              : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+          }`}>
+            {currentTool.difficulty}
+          </span>
+        )}
+      </PageHeader>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="max-w-6xl mx-auto h-[80vh] flex flex-col">

@@ -1,6 +1,6 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuItem } from './ui/dropdown-menu';
 import { Avatar, AvatarFallback } from './ui/avatar';
-import { User, Settings, LogOut, Trash2 } from 'lucide-react';
+import { LogOut, Trash2 } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -53,15 +53,6 @@ const UserAvatar = () => {
                             <p className="text-xs text-muted-foreground">@{user?.username}</p>
                         </div>
                     </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="cursor-pointer">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer">
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Settings</span>
-                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
                         className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
