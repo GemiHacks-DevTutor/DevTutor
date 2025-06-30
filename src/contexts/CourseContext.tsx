@@ -15,11 +15,11 @@ interface CourseContextType {
 const CourseContext = createContext<CourseContextType | undefined>(undefined);
 
 export const useCourse = () => {
-
   const context = useContext(CourseContext);
+
   if (context === undefined)
     throw new Error('useCourse must be used within a CourseProvider');
-
+  
   return context;
 };
 
@@ -33,113 +33,74 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children, user }
   const [userCourses, setUserCourses] = useState<Course[]>([]);
   const [isLoadingCourses, setIsLoadingCourses] = useState(false);
 
-  const refreshUserCourses = useCallback(async () => {
+  const apiRequest = async (endpoint: string, options?: RequestInit) => {
+    const response = await fetch(endpoint, {
+      headers: { 'Content-Type': 'application/json' },
+      ...options,
+    });
 
-    if (!user?.id)  
-        return;
+    return response.ok ? await response.json() : null;
+  };
+
+  const refreshUserCourses = useCallback(async () => {
+    if (!user?.id) 
+      return;
 
     setIsLoadingCourses(true);
 
-    try
-    {
-      const response = await fetch(`/api/courses?userId=${user.id}`);
-      
-        if(response.ok)
-        {
-            const data = await response.json();
-            setUserCourses(data.courses || []);
-        }
-        else
-            setUserCourses([]);
-
-    } catch (error)
-    {
-      console.error('Error fetching courses:', error);
-      setUserCourses([]);
-    }
-
-    setIsLoadingCourses(false);
+    apiRequest(`/api/courses?userId=${user.id}`)
+      .then(data => setUserCourses(data?.courses || []))
+      .catch(() => setUserCourses([]))
+      .finally(() => setIsLoadingCourses(false));
   }, [user]);
 
   const createCourse = async (toolId: string): Promise<boolean> => {
-
-    if (!user?.id) {
-      console.error('User not logged in');
+    if (!user?.id) 
       return false;
-    }
 
-    try {
-      const response = await fetch('/api/courses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          toolId,
-          userId: user.id 
-        }),
-      });
+    return apiRequest('/api/courses', {
+      method: 'POST',
+      body: JSON.stringify({ toolId, userId: user.id }),
+    })
+      .then(data => {
 
-      if (response.ok) {
-        const data = await response.json();
-        const newCourse = data.course;
-        
-        if (newCourse) {
-          setUserCourses(prev => [...prev, newCourse]);
-          return true;
-        } else 
+        if(!data?.course)
           return false;
-        
-      } else {
-        const errorData = await response.json();
-        console.error('Failed to create course:', errorData.error);
-        return false;
-      }
-    } catch (error) {
-      console.error('Error creating course:', error);
-      return false;
-    }
+
+        setUserCourses(prev => [...prev, data.course]);
+        return true;
+      })
+      .catch(() => false);
   };
 
   const updateModuleProgress = async (toolId: string, modulesCompleted: number): Promise<boolean> => {
     if (!user?.id)
       return false;
 
-    try
-    {
-      const response = await fetch('/api/courses', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          toolId,
-          userId: user.id,
-          modulesCompleted
-        }),
-      });
+    return apiRequest('/api/courses', {
+      method: 'PUT',
+      body: JSON.stringify({ toolId, userId: user.id, modulesCompleted }),
+    })
+      .then(data => {
 
-      if (response.ok)
-      {
-        setUserCourses(prev => {
-          const updated = prev.map(course => 
+        if(!data)
+          return false;
+
+        setUserCourses(prev => 
+          prev.map(course => 
             course.toolId === toolId 
               ? { ...course, modulesCompleted }
               : course
-          );
-          
-          return updated;
-        });
-
+          )
+        );
         return true;
-      } else
-        return false;
-    } catch
-    {
-      return false;
-    }
+      })
+      .catch(() => false);
   };
 
   useEffect(() => {
-    if (user && user.id) 
+    if (user?.id) 
       refreshUserCourses();
-    
   }, [user, refreshUserCourses]);
 
   const value: CourseContextType = {
