@@ -2,8 +2,7 @@
 
 import { useUser } from '@/contexts/UserContext';
 import { useCourse } from '@/contexts/CourseContext';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { CoursesSectionHeader } from '@/components/dashboard/CoursesSectionHeader';
 import { CoursesGrid } from '@/components/dashboard/CoursesGrid';
@@ -25,25 +24,19 @@ const Dashboard = () => {
     const [toolName, setToolName] = useState('');
     const [isCreatingTool, setIsCreatingTool] = useState(false);
     const [toolError, setToolError] = useState<string | null>(null);
-    const router = useRouter();
-
-    useEffect(() => {
-        if (!user)
-            router.push('/login');
-
-        if (user && !user.hasCompletedSurvey)
-            router.push('/questionnaire');
-
-    }, [user, router]);
 
     const filteredTools = userTools.filter((tool: Tool) => {
-        // Filter out tools that already have courses
+
         const hasExistingCourse = userCourses.some(course => course.toolId === tool.id);
-        if (hasExistingCourse) return false;
+
+        if (hasExistingCourse)
+            return false;
         
-        // Apply search filter
-        if (!searchQuery.trim()) return true;
+        if (!searchQuery.trim())
+            return true;
+
         const query = searchQuery.toLowerCase();
+
         return (
             tool.name.toLowerCase().includes(query) ||
             tool.description.toLowerCase().includes(query) ||
@@ -52,17 +45,17 @@ const Dashboard = () => {
     });
 
     const filteredCourses = userCourses.filter((course) => {
-        // Find the corresponding tool for this course
+        
         const correspondingTool = userTools.find(tool => tool.id === course.toolId);
         
-        // If no search query, show all courses
-        if (!searchQuery.trim()) return true;
-        
-        // If we can't find the tool, hide the course from search results
-        if (!correspondingTool) return false;
-        
-        // Apply search filter using the tool's properties
+        if (!searchQuery.trim())
+            return true;
+
+        if (!correspondingTool)
+            return false;
+
         const query = searchQuery.toLowerCase();
+
         return (
             correspondingTool.name.toLowerCase().includes(query) ||
             correspondingTool.description.toLowerCase().includes(query) ||
@@ -82,57 +75,61 @@ const Dashboard = () => {
     };
 
     const handleSubmitTool = async () => {
-        if (!toolName.trim()) return;
+
+        if(!toolName.trim())
+            return;
         
         setIsCreatingTool(true);
         setToolError(null);
         
-        try {
+        try
+        {
             const result = await createTool(toolName.trim());
-            if (result.success) closeDialog();
-            else setToolError(result.error || 'Failed to create tool');
-        } catch {
+
+            if (result.success) 
+                closeDialog();
+            else
+                setToolError(result.error || 'Failed to create tool');
+        } catch
+        {
             setToolError('An unexpected error occurred');
-        } finally {
+        } finally
+        {
             setIsCreatingTool(false);
         }
     };
 
     if (!user) 
         return (
-            <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <div className='min-h-screen bg-gray-50 p-6 flex items-center justify-center'>
+                <div className='text-center'>
+                    <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4'></div>
                     <p>No user found - redirecting to login...</p>
-                    <p className="text-sm text-gray-500 mt-2">Please log in to access the dashboard</p>
+                    <p className='text-sm text-gray-500 mt-2'>Please log in to access the dashboard</p>
                 </div>
             </div>
         );
     
-
     if (user && !user.hasCompletedSurvey) 
         return (
-            <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <div className='min-h-screen bg-gray-50 p-6 flex items-center justify-center'>
+                <div className='text-center'>
+                    <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4'></div>
                     <p>Redirecting to questionnaire...</p>
-                    <p className="text-sm text-gray-500 mt-2">Please complete the questionnaire to access the dashboard</p>
+                    <p className='text-sm text-gray-500 mt-2'>Please complete the questionnaire to access the dashboard</p>
                 </div>
             </div>
         );
     
-
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
-            <div className="max-w-7xl mx-auto">
+        <div className='min-h-screen bg-gray-50 p-6'>
+            <div className='max-w-7xl mx-auto'>
                 <DashboardHeader 
                     user={user}
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
                 />
-                
-                {/* Courses Section */}
-                <div className="mb-8">
+                <div className='mb-8'>
                     <CoursesSectionHeader courses={filteredCourses} />
                     <CoursesGrid 
                         courses={filteredCourses}
@@ -140,16 +137,13 @@ const Dashboard = () => {
                         isLoading={isLoadingCourses}
                     />
                 </div>
-                
-                {/* Tools Section */}
-                <div className="mb-8">
+                <div className='mb-8'>
                     <ToolsSectionHeader 
                         tools={userTools}
                         filteredTools={filteredTools}
                         searchQuery={searchQuery}
                         onCreateTool={openDialog}
                     />
-                    
                     <ToolsGrid 
                         filteredTools={filteredTools}
                         isLoading={isLoadingTools || false}
@@ -159,28 +153,26 @@ const Dashboard = () => {
                         onClearSearch={() => setSearchQuery('')}
                     />
                 </div>
-
                 <ToolStats tools={userTools} />
             </div>
-
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className='sm:max-w-[425px]'>
                     <DialogHeader>
                         <DialogTitle>Add New Tool</DialogTitle>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="toolName" className="text-right">
+                    <div className='grid gap-4 py-4'>
+                        <div className='grid grid-cols-4 items-center gap-4'>
+                            <Label htmlFor='toolName' className='text-right'>
                                 Tool Name
                             </Label>
                             <Input
-                                id="toolName"
+                                id='toolName'
                                 value={toolName}
                                 onChange={(e) => {
                                     setToolName(e.target.value);
                                     if (toolError) setToolError(null);
                                 }}
-                                placeholder="Enter tool name (e.g., React, Angular)"
+                                placeholder='Enter tool name (e.g., React, Angular)'
                                 className={`col-span-3 ${toolError ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''}`}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && !isCreatingTool) handleSubmitTool();
@@ -189,17 +181,17 @@ const Dashboard = () => {
                             />
                         </div>
                         {toolError && (
-                            <div className="flex items-start gap-3 p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg shadow-sm">
-                                <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                                <div className="flex-1">
-                                    <p className="font-medium">Invalid Tool</p>
-                                    <p className="mt-1 text-red-600">{toolError}</p>
+                            <div className='flex items-start gap-3 p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg shadow-sm'>
+                                <AlertCircle className='h-4 w-4 text-red-500 mt-0.5 flex-shrink-0' />
+                                <div className='flex-1'>
+                                    <p className='font-medium'>Invalid Tool</p>
+                                    <p className='mt-1 text-red-600'>{toolError}</p>
                                 </div>
                             </div>
                         )}
                     </div>
-                    <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={closeDialog} disabled={isCreatingTool}>
+                    <div className='flex justify-end gap-2'>
+                        <Button variant='outline' onClick={closeDialog} disabled={isCreatingTool}>
                             Cancel
                         </Button>
                         <Button 
